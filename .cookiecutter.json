@@ -1,0 +1,10 @@
+{
+  "_template": "gh:cjolowicz/cookiecutter-hypermodern-python",
+  "author": "Nesta",
+  "email": "software_development@nesta.org.uk",
+  "friendly_name": "Nesta Data Science Utilities",
+  "github_user": "nestauk",
+  "package_name": "ds_utils",
+  "project_name": "ds-utils",
+  "version": "0.0.0"
+}
