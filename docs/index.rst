@@ -11,9 +11,5 @@
    usage
    reference
    contributing
-<<<<<<< HEAD
-=======
-   Code of Conduct <codeofconduct>
->>>>>>> ab7e6e5 (Hypermodern python cookiecutter)
    License <license>
    Changelog <https://github.com/nestauk/ds-utils/releases>
