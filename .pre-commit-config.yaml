@@ -11,6 +11,10 @@ repos:
         name: Check for added large files
         entry: check-added-large-files
         language: system
+      - id: check-merge-conflict
+        name: Check for files with merge conflict strings
+        entry: check-merge-conflict
+        language: system
       - id: check-toml
         name: Check Toml
         entry: check-toml
@@ -33,6 +37,11 @@ repos:
         language: system
         types: [python]
         require_serial: true
+      - id: no-commit-to-branch
+        name: Prevent commits to dev / master
+        entry: no-commit-to-branch
+        language: system
+        args: [--branch, dev, --branch, master, --branch main]
       - id: reorder-python-imports
         name: Reorder python imports
         entry: reorder-python-imports
