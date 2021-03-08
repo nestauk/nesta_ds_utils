@@ -1,0 +1,25 @@
+[flake8]
+# ANN - annotations
+# B,B9 - Bugbear
+# BLK - Black
+# C - complexity
+# D - docstrings
+# DAR - darglint (checks docstrings)
+# E - pycodestyle errors
+# F - pyflakes
+# I - Import order
+# N - PEP8 naming
+# W - pycodestyle warnings
+select = ANN,B,B9,BLK,C,D,DAR,E,F,I,N,W
+# E203 - whitespace before ':'
+# E501 - line length (dealt with by bugbear)
+# W503 - linebreak before binary op
+ignore = E203,E501,W503
+max-complexity = 10
+max-line-length = 80
+application-import-names = ds_utils,tests
+import-order-style = google
+per-file-ignores =
+    tests/*:ANN
+    noxfile.py:ANN
+docstring-convention = google
