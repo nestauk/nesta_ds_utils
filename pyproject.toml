@@ -25,7 +25,7 @@ click = "^7.0"
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
 coverage = {extras = ["toml"], version = "^5.4"}
-mypy = "^0.800"
+mypy = "^0.812"
 xdoctest = {extras = ["colors"], version = "^0.15.3"}
 sphinx = "^3.4.3"
 sphinx-autobuild = "^2020.9.1"
