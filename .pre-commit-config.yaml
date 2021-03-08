@@ -41,7 +41,7 @@ repos:
         name: Prevent commits to dev / master
         entry: no-commit-to-branch
         language: system
-        args: [--branch, dev, --branch, master, --branch main]
+        args: [--branch, dev, --branch, master, --branch, main]
       - id: reorder-python-imports
         name: Reorder python imports
         entry: reorder-python-imports
