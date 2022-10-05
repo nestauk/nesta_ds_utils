@@ -1,5 +1,5 @@
 # nesta_ds_utils
 
-This repo contains a python package with basic data science utility functions to assist the DAP team. 
+A Python package with basic utility functions for data science projects at Nesta.
 
 ### This package is currently under development
