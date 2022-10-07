@@ -3,10 +3,7 @@ from typing import Union
 from pathlib import Path
 from xmlrpc.client import Boolean
 import zipfile
-import logging
 import os
-
-logger = logging.getLogger(__name__)
 
 
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
@@ -40,7 +37,6 @@ def extractall(zip_path: Union[Path, str], out_path: Union[Path, str]=None, dele
     :param delete_zip: option to delete zip file after extracted
     :type delete_zip: Boolean
     """
-    logger.info(f"Extracting to {out_path}")
 
     if out_path is None:
         out_path = zip_path.rsplit("/", 1)[0]

@@ -6,6 +6,7 @@ import sys
 sys.path.insert(1, "../nesta_ds_utils/")
 import nesta_io
 
+
 class TestNestaIO(unittest.TestCase):
     """Unittest class associated with nesta_io methods
     
