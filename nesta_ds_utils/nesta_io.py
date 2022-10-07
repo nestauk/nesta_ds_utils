@@ -75,11 +75,12 @@ def get_s3_dir_files(bucket_name: str, dir_name: str='') -> List[str]:
 
 
 def load_s3_data(bucket_name: str, file_name: str) -> Union[pd.DataFrame, str, dict]:
-    """
-    Load data from S3 location.
+    """Load data from S3 location.
+
     Args:
         bucket_name (str): The S3 bucket name
         file_name (str): S3 key to load
+
     Returns:
         Union[pd.DataFrame, str, dict]: Loaded data from S3 location.
     """
@@ -105,4 +106,29 @@ def load_s3_data(bucket_name: str, file_name: str) -> Union[pd.DataFrame, str, d
     else:
         raise Exception( 
         'Function not supported for file type other than "*.json", *.txt", "*.pickle", "*.tsv" and "*.csv"'
+        )
+
+
+def save_to_s3(bucket_name: str, output_file_dir: str, output_var):
+    """Save data to S3 location.
+    
+    Args:
+        bucket_name (str): The S3 bucket name
+        output_file_dir (str): file path to save object to
+        output_var: Object to be saved
+    """
+
+    obj = S3.Object(bucket_name, output_file_dir)
+
+    if fnmatch(output_file_dir, "*.pkl") or fnmatch(output_file_dir, "*.pickle"):
+        obj.put(Body=pickle.dumps(output_var))
+    elif fnmatch(output_file_dir, "*.txt"):
+        obj.put(Body=output_var)
+    elif fnmatch(output_file_dir, "*.csv"):
+        output_var.to_csv("s3://" + bucket_name + "/" + output_file_dir, index=False)
+    elif fnmatch(output_file_dir, "*.json"):
+        obj.put(Body=json.dumps(output_var))
+    else:
+        raise Exception(
+            'Function not supported for file type other than "*.json", *.txt", "*.pickle", "*.tsv" and "*.csv"'
         )
