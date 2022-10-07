@@ -4,6 +4,9 @@ from pathlib import Path
 from xmlrpc.client import Boolean
 import zipfile
 import os
+import boto3
+from typing import List
+S3 = boto3.resource("s3")
 
 
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
@@ -47,3 +50,21 @@ def extractall(zip_path: Union[Path, str], out_path: Union[Path, str]=None, dele
     
     if delete_zip is True:
         os.remove(zip_path)
+
+
+def get_s3_dir_files(bucket_name: str, dir_name: str='') -> List[str]:
+    """Get a list of all files in bucket directory.
+
+    Args:
+        bucket_name (str): S3 bucket name
+        dir_name (str, optional): S3 bucket directory name. Defaults to ''.
+
+    Returns:
+        List[str]: List of file names in bucket directory
+    """
+
+    my_bucket = S3.Bucket(bucket_name)
+    return [
+        object_summary.key
+        for object_summary in my_bucket.objects.filter(Prefix=dir_name)
+    ]
