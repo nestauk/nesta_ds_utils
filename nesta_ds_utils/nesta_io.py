@@ -5,7 +5,11 @@ from xmlrpc.client import Boolean
 import zipfile
 import os
 import boto3
+from fnmatch import fnmatch
+import pickle
+import json
 from typing import List
+import pandas as pd
 S3 = boto3.resource("s3")
 
 
@@ -68,3 +72,37 @@ def get_s3_dir_files(bucket_name: str, dir_name: str='') -> List[str]:
         object_summary.key
         for object_summary in my_bucket.objects.filter(Prefix=dir_name)
     ]
+
+
+def load_s3_data(bucket_name: str, file_name: str) -> Union[pd.DataFrame, str, dict]:
+    """
+    Load data from S3 location.
+    Args:
+        bucket_name (str): The S3 bucket name
+        file_name (str): S3 key to load
+    Returns:
+        Union[pd.DataFrame, str, dict]: Loaded data from S3 location.
+    """
+
+    obj = S3.Object(bucket_name, file_name)
+    if fnmatch(file_name, "*.csv") or fnmatch(file_name, "*.tsv"):
+        return pd.read_csv(f"s3://{bucket_name}/{file_name}")
+    elif fnmatch(file_name, "*.tsv.zip"):
+        return pd.read_csv(
+            f"s3://{bucket_name}/{file_name}",
+            compression="zip",
+            sep="\t",
+        )
+    elif fnmatch(file_name, "*.pickle") or fnmatch(file_name, "*.pkl"):
+        file = obj.get()["Body"].read()
+        return pickle.loads(file)
+    elif fnmatch(file_name, "*.txt"):
+        file = obj.get()["Body"].read().decode()
+        return [f.split("\t") for f in file.split("\n")]
+    elif fnmatch(file_name, "*.json"):
+        file = obj.get()["Body"].read().decode()
+        return json.loads(file)
+    else:
+        raise Exception( 
+        'Function not supported for file type other than "*.json", *.txt", "*.pickle", "*.tsv" and "*.csv"'
+        )
