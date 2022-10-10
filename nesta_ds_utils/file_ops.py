@@ -30,6 +30,7 @@ def make_path_if_not_exist(path: Union[Path, str]):
 
 def extractall(zip_path: Union[Path, str], out_path: Union[Path, str]=None, delete_zip: Boolean = True):
     """Takes path to zipped file and extracts it to specified output path
+    
     :param zip_path: path to zipped file
     :type zip_path: str or pathlib.Path
     :param out_path: path where contents will be unzipped to
