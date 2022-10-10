@@ -4,24 +4,24 @@ import shutil
 from pathlib import Path
 import sys
 sys.path.insert(1, "../nesta_ds_utils/")
-import nesta_io
+import file_ops
 
 
-class TestNestaIO(unittest.TestCase):
+class TestFileOps(unittest.TestCase):
     """Unittest class associated with nesta_io methods
     
-    To run all tests: python -m unittest test_nesta_io.TestNestaIO
+    To run all tests: python -m unittest test_file_ops.TestFileOps
 
-    To run specific tests: python -m unittest test_nesta_io.TestNestaIO.[test_method]
-    (ex: python -m unittest test_nesta_io.TestNestaIO.test_zip_extraction)
+    To run specific tests: python -m unittest test_file_ops.TestFileOps.[test_method]
+    (ex: python -m unittest test_file_ops.TestFileOps.test_zip_extraction)
     
     """
     def setUp(self):
-        self.outPath = nesta_io._convert_str_to_pathlib_path("temp/zipContents")
-        self.zipPath = nesta_io._convert_str_to_pathlib_path("artifacts/dummy_zip.zip")
-        nesta_io.make_path_if_not_exist(self.outPath)
-        nesta_io.extractall("artifacts/dummy_zip.zip", self.outPath, delete_zip = False)
-        nesta_io.extractall("artifacts/dummy_zip.zip", delete_zip = False)
+        self.outPath = file_ops._convert_str_to_pathlib_path("temp/zipContents")
+        self.zipPath = file_ops._convert_str_to_pathlib_path("artifacts/dummy_zip.zip")
+        file_ops.make_path_if_not_exist(self.outPath)
+        file_ops.extractall("artifacts/dummy_zip.zip", self.outPath, delete_zip = False)
+        file_ops.extractall("artifacts/dummy_zip.zip", delete_zip = False)
         
     def test_convert_str_to_pathlib_path(self):
         """tests that file_ops method convert_str_to_pathlib_path returns type patlib.Path
