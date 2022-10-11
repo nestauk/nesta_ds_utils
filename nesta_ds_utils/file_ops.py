@@ -109,13 +109,13 @@ def load_from_s3(bucket_name: str, file_name: str) -> Union[pd.DataFrame, str, d
         )
 
 
-def save_to_s3(bucket_name: str, output_file_dir: str, output_var):
+def save_to_s3(bucket_name: str, output_file_dir: str, output_var: Union[pd.DataFrame, str, dict]):
     """Save data to S3 location.
     
     Args:
         bucket_name (str): The S3 bucket name
-        output_file_dir (str): file path to save object to
-        output_var: Object to be saved
+        output_file_dir (str): File path to save object to
+        output_var (Union[pd.DataFrame, str, dict]): Data to be saved
     """
 
     obj = S3.Object(bucket_name, output_file_dir)
@@ -123,10 +123,21 @@ def save_to_s3(bucket_name: str, output_file_dir: str, output_var):
     if fnmatch(output_file_dir, "*.pkl") or fnmatch(output_file_dir, "*.pickle"):
         obj.put(Body=pickle.dumps(output_var))
     elif fnmatch(output_file_dir, "*.txt"):
+        if not isinstance(output_var, str):
+            raise Exception(
+                'Saving in .txt format is supported only for \'str\' data.'
+            )
         obj.put(Body=output_var)
     elif fnmatch(output_file_dir, "*.csv"):
         if isinstance(output_var, pd.DataFrame):
             output_var.to_csv("s3://" + bucket_name + "/" + output_file_dir, index=False)
+        elif isinstance(output_var, dict):
+            csv_stream = io.StringIO()
+            with csv_stream as f:  
+                w = csv.DictWriter(f, data.keys())
+                w.writeheader()
+                w.writerow(data)
+                obj.put(Body=csv_stream.getvalue())
         else:
             obj.put(Body=output_var)          
     elif fnmatch(output_file_dir, "*.json"):
@@ -136,5 +147,5 @@ def save_to_s3(bucket_name: str, output_file_dir: str, output_var):
             obj.put(Body=json.dumps(output_var))
     else:
         raise Exception(
-            'Function not supported for file type other than "*.json", *.txt", "*.pickle", "*.tsv" and "*.csv"'
+            'Function not supported for file type other than "*.json", *.txt", "*.pickle" and "*.csv"'
         )
