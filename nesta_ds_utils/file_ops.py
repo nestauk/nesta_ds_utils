@@ -83,13 +83,6 @@ def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
     Returns:
         io.BytesIO: Bytes file object
     """
-    buffer = io.BytesIO()
-    if fnmatch(save_file_dir, "*.csv"):
-        df.to_csv(buffer)
-    elif fnmatch(save_file_dir, "*.json"):
-        df.to_json(buffer) 
-    buffer.seek(0)
-    return buffer
 
 
 def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
