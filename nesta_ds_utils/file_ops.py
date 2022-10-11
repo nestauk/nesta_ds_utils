@@ -129,9 +129,15 @@ def save_to_s3(bucket_name: str, output_file_dir: str, output_var):
     elif fnmatch(output_file_dir, "*.txt"):
         obj.put(Body=output_var)
     elif fnmatch(output_file_dir, "*.csv"):
-        output_var.to_csv("s3://" + bucket_name + "/" + output_file_dir, index=False)
+        if isinstance(output_var, pd.DataFrame):
+            output_var.to_csv("s3://" + bucket_name + "/" + output_file_dir, index=False)
+        else:
+            obj.put(Body=output_var)          
     elif fnmatch(output_file_dir, "*.json"):
-        obj.put(Body=json.dumps(output_var))
+        if isinstance(output_var, pd.DataFrame):
+            output_var.to_json("s3://" + bucket_name + "/" + output_file_dir)
+        else:
+            obj.put(Body=json.dumps(output_var))
     else:
         raise Exception(
             'Function not supported for file type other than "*.json", *.txt", "*.pickle", "*.tsv" and "*.csv"'
