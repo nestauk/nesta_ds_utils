@@ -10,6 +10,8 @@ import pickle
 import json
 from typing import List
 import pandas as pd
+import io
+import csv
 S3 = boto3.resource("s3")
 
 
@@ -134,9 +136,9 @@ def save_to_s3(bucket_name: str, output_file_dir: str, output_var: Union[pd.Data
         elif isinstance(output_var, dict):
             csv_stream = io.StringIO()
             with csv_stream as f:  
-                w = csv.DictWriter(f, data.keys())
+                w = csv.DictWriter(f, output_var.keys())
                 w.writeheader()
-                w.writerow(data)
+                w.writerow(output_var)
                 obj.put(Body=csv_stream.getvalue())
         else:
             obj.put(Body=output_var)          
