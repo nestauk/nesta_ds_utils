@@ -74,7 +74,7 @@ def get_s3_dir_files(bucket_name: str, dir_name: str='') -> List[str]:
     ]
 
 
-def load_s3_data(bucket_name: str, file_name: str) -> Union[pd.DataFrame, str, dict]:
+def load_from_s3(bucket_name: str, file_name: str) -> Union[pd.DataFrame, str, dict]:
     """Load data from S3 location.
 
     Args:
