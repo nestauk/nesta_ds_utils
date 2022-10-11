@@ -108,6 +108,7 @@ def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
         df = pd.read_json(fileobj) 
     return df
 
+    obj = S3.Object(bucket_name, output_file_dir)
 
 def upload_data_s3(data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file_path: str):
     """Upload data to S3 location.
@@ -125,7 +126,7 @@ def upload_data_s3(data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file
         s3.upload_fileobj(data, bucket, save_file_path)
     else:
         raise Exception(
-            'Function supports data only as "io.BytesIO" or "io.DataFrame"'
+            'Function not supported for file type other than "*.json", *.txt", "*.pickle", "*.tsv" and "*.csv"'
         )
 
 
