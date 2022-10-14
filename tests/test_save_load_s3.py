@@ -10,7 +10,7 @@ import io
 
 @mock_s3
 def test_get_dir_files_s3():
-    """tests that get_dir_files_s3 returns a List 
+    """Test that get_dir_files_s3 returns a List.
     """
 
     conn = boto3.resource('s3', region_name='us-east-1')
@@ -19,7 +19,7 @@ def test_get_dir_files_s3():
 
 @mock_s3
 def test_upload_s3_exception():
-    """tests that upload_data_s3 rasies an Exception for unsupported data
+    """Tests that upload_data_s3 rasies an Exception for unsupported data.
     """
 
     conn = boto3.resource('s3', region_name='us-east-1')
@@ -29,7 +29,7 @@ def test_upload_s3_exception():
 
 @mock_s3
 def test_download_s3_fileobj():
-    """tests that download_data_s3 returns a bytes file object
+    """Tests that download_data_s3 returns a bytes file object.
     """
 
     conn = boto3.resource('s3', region_name='us-east-1')
@@ -40,7 +40,7 @@ def test_download_s3_fileobj():
 
 @mock_s3
 def test_download_s3_dataframe():
-    """tests that download_data_s3 returns a bytes file object
+    """Tests that download_data_s3 returns a bytes file object.
     """
 
     conn = boto3.resource('s3', region_name='us-east-1')

@@ -70,7 +70,7 @@ def get_dir_files_s3(bucket_name: str, dir_name: str='') -> List[str]:
 
 
 def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
-    """Convert DataFrame into bytes file object
+    """Convert DataFrame into bytes file object.
     
     Args:
         df (pd.DataFrame): Dataframe to convert 
@@ -89,7 +89,7 @@ def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
 
 
 def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
-    """Convert bytes file object into DataFrame
+    """Convert bytes file object into DataFrame.
 
     Args:
         buffer (io.BytesIO): Bytes file object
@@ -106,7 +106,7 @@ def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
 
 
 def upload_data_s3(data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file_path: str):
-    """Upload data to S3 location
+    """Upload data to S3 location.
 
     Args:
         data (Union[io.BytesIO, pd.DataFrame]): Data to upload
@@ -126,7 +126,7 @@ def upload_data_s3(data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file
 
 
 def download_data_s3(bucket: str, file_path: str, asDataFrame: bool=False) -> Union[io.BytesIO, pd.DataFrame]:
-    """Download data from S3 location
+    """Download data from S3 location.
 
     Args:
         bucket (str): Bucket's name
