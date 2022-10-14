@@ -7,7 +7,7 @@ import os
 
 
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
-    """Converts a path written as a string to pathlib format
+    """Converts a path written as a string to pathlib format.
 
     :param path: file path in string format
     :type path: str or pathlib.path
@@ -18,7 +18,7 @@ def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
 
 
 def make_path_if_not_exist(path: Union[Path, str]):
-    """Check if path exists, if it does not exist then create it
+    """Check if path exists, if it does not exist then create it.
 
     :param path: file path 
     :type path: pathlib.Path or str
@@ -28,8 +28,11 @@ def make_path_if_not_exist(path: Union[Path, str]):
         path.mkdir(parents=True)
 
 
-def extractall(zip_path: Union[Path, str], out_path: Union[Path, str]=None, delete_zip: Boolean = True):
-    """Takes path to zipped file and extracts it to specified output path
+def extractall(
+    zip_path: Union[Path, str], 
+    out_path: Union[Path, str]=None, 
+    delete_zip: Boolean = True):
+    """Takes path to zipped file and extracts it to specified output path.
     
     :param zip_path: path to zipped file
     :type zip_path: str or pathlib.Path
