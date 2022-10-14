@@ -13,7 +13,7 @@ def test_output_path():
     """Generates pathlib.Path to dump intermediate test data.
 
     Yields:
-        pathlib.Path: output path to dump intermetiate test data
+        Output path to dump intermetiate test data
     """
     test_output_path = file_ops._convert_str_to_pathlib_path("tests/temp/")
     file_ops.make_path_if_not_exist(test_output_path)
