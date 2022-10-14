@@ -1,0 +1,7 @@
+
+Usage
+=====
+
+To convert a string path to a pathlib.path you can use the ``nesta_io.convert_str_to_pathlib_path()`` function:
+
+.. autofunction:: nesta_io.convert_str_to_pathlib_path

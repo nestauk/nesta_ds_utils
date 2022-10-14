@@ -1,0 +1,11 @@
+
+Nesta_IO
+========
+**nesta_io** contains a variety of file related operations commonly used by the DAP team
+
+.. autofunction:: nesta_io.convert_str_to_pathlib_path
+
+.. autofunction:: nesta_io.make_path_if_not_exist
+
+.. autofunction:: nesta_io.extractall
+
