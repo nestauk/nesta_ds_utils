@@ -12,18 +12,20 @@ import pandas as pd
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
     """Converts a path written as a string to pathlib format.
 
-    :param path: file path in string format
-    :type path: str or pathlib.path
-    :return: path in pathlib format
-    :rtype: pathlib.Path
+    Args:
+        path (Union[Path, str]): File path in string format.
+
+    Returns:
+        Path: Path in pathlib format.
     """
     return Path(path) if type(path) is str else path
 
 
 def make_path_if_not_exist(path: Union[Path, str]):
     """Check if path exists, if it does not exist then create it.
-    :param path: file path 
-    :type path: pathlib.Path or str
+
+    Args:
+        path (Union[Path, str]): File path.
     """
     path = _convert_str_to_pathlib_path(path)
     if not path.exists():
@@ -35,15 +37,12 @@ def extractall(
     out_path: Union[Path, str]=None, 
     delete_zip: Boolean = True):
     """Takes path to zipped file and extracts it to specified output path.
-    
-    :param zip_path: path to zipped file
-    :type zip_path: str or pathlib.Path
-    :param out_path: path where contents will be unzipped to
-    :type out_path: str or pathlib.Path
-    :param delete_zip: option to delete zip file after extracted
-    :type delete_zip: Boolean
-    """
 
+    Args:
+        zip_path (Union[Path, str]): Path to zipped file.
+        out_path (Union[Path, str], optional): Path where contents will be unzipped to. Defaults to None.
+        delete_zip (Boolean, optional): Option to delete zip file after extracted. Defaults to True.
+    """
     if out_path is None:
         out_path = zip_path.rsplit("/", 1)[0]
 
@@ -77,11 +76,11 @@ def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
     """Convert DataFrame into bytes file object.
     
     Args:
-        df (pd.DataFrame): Dataframe to convert 
-        save_file_dir (io.BytesIO): Saving file name specifying format
+        df (pd.DataFrame): Dataframe to convert.
+        save_file_dir (io.BytesIO): Saving file name.
 
     Returns:
-        io.BytesIO: Bytes file object
+        io.BytesIO: Bytes file object.
     """
     buffer = io.BytesIO()
     if fnmatch(save_file_dir, "*.csv"):
@@ -96,8 +95,8 @@ def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
     """Convert bytes file object into DataFrame.
 
     Args:
-        buffer (io.BytesIO): Bytes file object
-        file_dir (str): Loading file name specifying format
+        buffer (io.BytesIO): Bytes file object.
+        file_dir (str): Loading file name.
 
     Returns:
         pd.DataFrame: Dataframe converted
@@ -110,13 +109,16 @@ def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
 
     obj = S3.Object(bucket_name, output_file_dir)
 
-def upload_data_s3(data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file_path: str):
+def upload_data_s3(
+    data: Union[io.BytesIO, pd.DataFrame], 
+    bucket: str, 
+    save_file_path: str):
     """Upload data to S3 location.
 
     Args:
-        data (Union[io.BytesIO, pd.DataFrame]): Data to upload
-        bucket (str): Bucket's name
-        save_file_path (str): File path to saveing data
+        data (Union[io.BytesIO, pd.DataFrame]): Data to upload.
+        bucket (str): Bucket's name.
+        save_file_path (str): Path location to save data.
     """
     s3 = boto3.client('s3')
     if isinstance(data, pd.DataFrame):
@@ -130,16 +132,19 @@ def upload_data_s3(data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file
         )
 
 
-def download_data_s3(bucket: str, file_path: str, asDataFrame: bool=False) -> Union[io.BytesIO, pd.DataFrame]:
+def download_data_s3(
+    bucket: str, 
+    file_path: str, 
+    asDataFrame: bool=False) -> Union[io.BytesIO, pd.DataFrame]:
     """Download data from S3 location.
 
     Args:
-        bucket (str): Bucket's name
-        file_path (str): File path to loading data
+        bucket (str): Bucket's name.
+        file_path (str): File path to loading data.
         asDataFrame (bool, optional): If True: return the data as pd.DataFrame. If False: return data as io.BytesIO. Default: False. 
 
     Returns:
-        Union[io.BytesIO, pd.DataFrame]: Downloaded data
+        Union[io.BytesIO, pd.DataFrame]: Downloaded data.
     """
     s3 = boto3.client('s3')
     fileobj= io.BytesIO()
