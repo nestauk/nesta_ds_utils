@@ -87,7 +87,7 @@ def test_zip_not_deleted():
 
 @mock_s3
 def test_get_bucket_filenames_s3():
-    """Test that get_dir_files_s3 returns a List."""
+    """Test that get_dir_files_s3 returns a list containing dummy.csv."""
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="mybucket")
     s3 = boto3.client("s3")
@@ -116,7 +116,7 @@ def test_download_s3_fileobj():
 
 @mock_s3
 def test_download_s3_dataframe():
-    """Tests that download_data_s3 returns a bytes file object."""
+    """Tests that download_data_s3 returns a pandas Dataframe."""
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
