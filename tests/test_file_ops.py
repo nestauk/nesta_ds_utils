@@ -88,7 +88,9 @@ def test_get_bucket_filenames_s3():
     """Test that get_dir_files_s3 returns a List."""
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="mybucket")
-    assert isinstance(file_ops.get_bucket_filenames_s3("mybucket", ""), List)
+    s3 = boto3.client("s3")
+    s3.upload_fileobj(io.BytesIO(b"Test"), "mybucket", "dummy.csv")
+    assert file_ops.get_bucket_filenames_s3("mybucket", "") == ["dummy.csv"]
 
 
 @mock_s3
