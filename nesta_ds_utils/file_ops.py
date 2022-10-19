@@ -1,4 +1,4 @@
-import io 
+import io
 from typing import Union, List
 from pathlib import Path
 from xmlrpc.client import Boolean
@@ -33,9 +33,10 @@ def make_path_if_not_exist(path: Union[Path, str]):
 
 
 def extractall(
-    zip_path: Union[Path, str], 
-    out_path: Union[Path, str]=None, 
-    delete_zip: Boolean = True):
+    zip_path: Union[Path, str],
+    out_path: Union[Path, str] = None,
+    delete_zip: Boolean = True,
+):
     """Takes path to zipped file and extracts it to specified output path.
 
     Args:
@@ -49,12 +50,12 @@ def extractall(
     make_path_if_not_exist(out_path)
     with zipfile.ZipFile(zip_path, "r") as z:
         z.extractall(out_path)
-    
+
     if delete_zip is True:
         os.remove(zip_path)
 
 
-def get_dir_files_s3(bucket_name: str, dir_name: str='') -> List[str]:
+def get_bucket_filenames(bucket_name: str, dir_name: str = "") -> List[str]:
     """Get a list of all files in bucket directory.
 
     Args:
@@ -74,7 +75,7 @@ def get_dir_files_s3(bucket_name: str, dir_name: str='') -> List[str]:
 
 def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
     """Convert DataFrame into bytes file object.
-    
+
     Args:
         df (pd.DataFrame): Dataframe to convert.
         save_file_dir (io.BytesIO): Saving file name.
@@ -86,7 +87,7 @@ def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
     if fnmatch(save_file_dir, "*.csv"):
         df.to_csv(buffer)
     elif fnmatch(save_file_dir, "*.json"):
-        df.to_json(buffer) 
+        df.to_json(buffer)
     buffer.seek(0)
     return buffer
 
@@ -104,15 +105,14 @@ def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
     if fnmatch(load_file_dir, "*.csv"):
         df = pd.read_csv(fileobj)
     elif fnmatch(load_file_dir, "*.json"):
-        df = pd.read_json(fileobj) 
+        df = pd.read_json(fileobj)
     return df
 
     obj = S3.Object(bucket_name, output_file_dir)
 
 def upload_data_s3(
-    data: Union[io.BytesIO, pd.DataFrame], 
-    bucket: str, 
-    save_file_path: str):
+    data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file_path: str
+):
     """Upload data to S3 location.
 
     Args:
@@ -120,10 +120,10 @@ def upload_data_s3(
         bucket (str): Bucket's name.
         save_file_path (str): Path location to save data.
     """
-    s3 = boto3.client('s3')
+    s3 = boto3.client("s3")
     if isinstance(data, pd.DataFrame):
-        obj =  df_to_fileobj(data, save_file_path)
-        s3.upload_fileobj(obj, bucket, save_file_path)      
+        obj = df_to_fileobj(data, save_file_path)
+        s3.upload_fileobj(obj, bucket, save_file_path)
     elif isinstance(data, io.BytesIO):
         s3.upload_fileobj(data, bucket, save_file_path)
     else:
@@ -133,22 +133,20 @@ def upload_data_s3(
 
 
 def download_data_s3(
-    bucket: str, 
-    file_path: str, 
-    asDataFrame: bool=False) -> Union[io.BytesIO, pd.DataFrame]:
+    bucket: str, file_path: str, asDataFrame: bool = False
+) -> Union[io.BytesIO, pd.DataFrame]:
     """Download data from S3 location.
 
     Args:
         bucket (str): Bucket's name.
         file_path (str): File path to loading data.
-        asDataFrame (bool, optional): If True: return the data as pd.DataFrame. If False: return data as io.BytesIO. Default: False. 
+        asDataFrame (bool, optional): If True: return the data as pd.DataFrame. If False: return data as io.BytesIO. Default: False.
 
     Returns:
         Union[io.BytesIO, pd.DataFrame]: Downloaded data.
     """
-    s3 = boto3.client('s3')
-    fileobj= io.BytesIO()
+    s3 = boto3.client("s3")
+    fileobj = io.BytesIO()
     s3.download_fileobj(bucket, file_path, fileobj)
     fileobj.seek(0)
-    return (fileobj_to_df(fileobj, file_path) 
-            if asDataFrame else fileobj)
+    return fileobj_to_df(fileobj, file_path) if asDataFrame else fileobj
