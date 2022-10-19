@@ -22,6 +22,6 @@ To add a feature:
 10. Update documentation within nesta_ds_utils>docs>source
     - If just adding a new feature to an existing script modify the .rst files corresponding to the script and tests that you modified
     - If adding a new script, add new .rst files for your script and test script, modify index.rst to include your scripts, and modify conf.py to import your scripts
-      ** all of your functions must have properly formatted docstrings (we are using [Google](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) format) to be picked up by the documentation **
+      **all of your functions must have properly formatted docstrings (we are using [Google](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) format) to be picked up by the documentation**
 11. Open a PR and commit your changes to the branch you created
 12. Push your changes to your branch and ensure that all tests ran successfully
