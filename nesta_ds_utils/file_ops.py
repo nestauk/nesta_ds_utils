@@ -73,7 +73,7 @@ def get_bucket_filenames_s3(bucket_name: str, dir_name: str = "") -> List[str]:
     ]
 
 
-def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
+def _df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
     """Convert DataFrame into bytes file object.
 
     Args:
@@ -92,7 +92,7 @@ def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
     return buffer
 
 
-def fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
+def _fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
     """Convert bytes file object into DataFrame.
 
     Args:
@@ -121,7 +121,7 @@ def upload_data_s3(
     """
     s3 = boto3.client("s3")
     if isinstance(data, pd.DataFrame):
-        obj = df_to_fileobj(data, save_file_path)
+        obj = _df_to_fileobj(data, save_file_path)
         s3.upload_fileobj(obj, bucket, save_file_path)
     elif isinstance(data, io.BytesIO):
         s3.upload_fileobj(data, bucket, save_file_path)
@@ -148,4 +148,4 @@ def download_data_s3(
     fileobj = io.BytesIO()
     s3.download_fileobj(bucket, file_path, fileobj)
     fileobj.seek(0)
-    return fileobj_to_df(fileobj, file_path) if asDataFrame else fileobj
+    return _fileobj_to_df(fileobj, file_path) if asDataFrame else fileobj
