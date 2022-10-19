@@ -78,7 +78,7 @@ def df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
 
     Args:
         df (pd.DataFrame): Dataframe to convert.
-        save_file_dir (io.BytesIO): Saving file name.
+        save_file_dir (str): Saving file name.
 
     Returns:
         io.BytesIO: Bytes file object.
@@ -127,7 +127,7 @@ def upload_data_s3(
         s3.upload_fileobj(data, bucket, save_file_path)
     else:
         raise Exception(
-            'Function supports data only as "io.BytesIO" or "io.DataFrame".'
+            'Function supports data only as "io.BytesIO" or "pd.DataFrame".'
         )
 
 
