@@ -15,16 +15,10 @@ test_file_ops
 
 .. autofunction:: test_file_ops.test_zip_not_deleted
 
+.. autofunction:: test_file_ops.test_download_s3_dataframe
 
+.. autofunction:: test_file_ops.test_download_s3_fileobj
 
+.. autofunction:: test_file_ops.test_upload_s3_exception
 
-
-
-
-
-
-
-
-
-
-
+.. autofunction:: test_file_ops.test_get_bucket_filenames_s3
