@@ -55,7 +55,7 @@ def extractall(
         os.remove(zip_path)
 
 
-def get_bucket_filenames(bucket_name: str, dir_name: str = "") -> List[str]:
+def get_bucket_filenames_s3(bucket_name: str, dir_name: str = "") -> List[str]:
     """Get a list of all files in bucket directory.
 
     Args:
