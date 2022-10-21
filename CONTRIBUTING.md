@@ -6,14 +6,13 @@ All contributions to this project should follow the [Nesta Github Guidelines](ht
 
 ### Reporting a Bug:
 
-Open a new Issue in the nesta_ds_utils repository.
+Open a new Bug Report in the nesta_ds_utils repository.
 
 Include:
 
 - A short description of the bug
 - A small code snippit to reproduce the bug (if possible)
 - If an error or exception is raised include the full traceback
-- Tag the issue with the label "bug"
 
 Once you have submitted the issue, post in the #dev channel in the data_analytics_nesta Slack workspace with the Issue number so
 people are aware of the bug and can address it asap. If the bug is resolved via Slack (i.e. it is not a bug in the package code)
@@ -27,7 +26,7 @@ for the nesta_ds_utils package is:
 - General enough that it can be used across projects
 - Does not exist in an existing python package
 
-If the feature is approved, open a new Issue in the 'nesta_ds_utils' repository. Include:
+If the feature is approved, open a new Feature Request in the 'nesta_ds_utils' repository. Include:
 
 - A description of the feature
 - A link to an example of the function in an existing project. If an example does not exist, include a detailed description of the
@@ -44,12 +43,12 @@ If the feature is approved, open a new Issue in the 'nesta_ds_utils' repository.
 7. Create a new branch corresponding to the issue: `git checkout -b [ISSUE NUMBER]_[BRIEF DESCRIPTION]` (ex: 10_fix_docstrings)
 8. Add new functions to corresponding modules, or new modules if feature doesn't fit within existing modules
 9. Add tests for any new functions to corresponding test module located within tests folder
-10. Update documentation within `nesta_ds_utils/docs/source`
+10. Update documentation within `nesta_ds_utils/docs/source`:
 
     - If just adding a new feature to an existing module modify the .rst files corresponding to the module and tests that you modified
     - If adding a new module, add new .rst files for your module and test module, modify index.rst to include your modules, and modify conf.py to import your modules
 
-      **all of your functions must have properly formatted docstrings (we are using [Google](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) format) to be picked up by the documentation**
+      **All of your functions must have properly formatted docstrings (we are using [Google](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) format) to be picked up by the documentation**
 
 11. Open a PR and commit your changes to the branch you created
 12. Push your changes to your branch and ensure that all tests ran successfully
