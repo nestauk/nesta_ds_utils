@@ -6,6 +6,8 @@ import altair_saver as alt_saver
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.chrome.options import Options
+
 import os
 from typing import Iterator
 from pathlib import Path
@@ -14,8 +16,9 @@ from nesta_ds_utils import file_ops
 
 def _google_chrome_driver_setup() -> WebDriver:
     """Set up the driver to save figures"""
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(ChromeDriverManager().install())
-    driver.get("https://www.google.com")
     return driver
 
 
