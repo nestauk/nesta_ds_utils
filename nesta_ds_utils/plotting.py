@@ -18,7 +18,9 @@ def _google_chrome_driver_setup() -> WebDriver:
     """Set up the driver to save figures"""
     chrome_options = Options()
     chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    driver = webdriver.Chrome(
+        ChromeDriverManager().install(), chrome_options=chrome_options
+    )
     return driver
 
 
