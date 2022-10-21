@@ -6,7 +6,7 @@ All contributions to this project should follow the [Nesta Github Guidelines](ht
 
 ### Reporting a Bug:
 
-Open a new Bug Report in the nesta_ds_utils repository.
+Open a new Bug Report in the `nesta_ds_utils` repository.
 
 Include:
 
@@ -21,12 +21,12 @@ please remember to delete the Issue.
 ### Suggesting a Feature:
 
 First post in the #dev channel in the data_analytics_nesta Slack workspace to begin discussion of the feature. A good feature
-for the nesta_ds_utils package is:
+for the `nesta_ds_utils` package is:
 
 - General enough that it can be used across projects
 - Does not exist in an existing python package
 
-If the feature is approved, open a new Feature Request in the 'nesta_ds_utils' repository. Include:
+If the feature is approved, open a new Feature Request in the `nesta_ds_utils` repository. Include:
 
 - A description of the feature
 - A link to an example of the function in an existing project. If an example does not exist, include a detailed description of the
