@@ -15,6 +15,7 @@ from nesta_ds_utils import file_ops
 def _google_chrome_driver_setup() -> WebDriver:
     """Set up the driver to save figures"""
     driver = webdriver.Chrome(ChromeDriverManager().install())
+    driver.get("https://www.google.com")
     return driver
 
 

@@ -40,3 +40,4 @@ def test_save_altair_exception():
     path = "tests/temp/"
     with pytest.raises(Exception):
         plotting.save(fig, "test_fig", path, filetypes=[""])
+    shutil.rmtree("tests/temp/")
