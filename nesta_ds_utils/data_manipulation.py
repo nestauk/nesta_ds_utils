@@ -9,11 +9,12 @@ def parse_date_string(date_string: str, _format: str = "%Y-%m-%d") -> datetime.d
     Args:
         date_string (str): string describing a date.
         _format (str, optional): date format. Defaults to "%Y-%m-%d".
-        For additional date format options refer to `datetime documentation <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_
+        For additional date format options refer to `datetime documentation <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.
+
 
     Returns:
         datetime.datetime: date in datetime format if date_string matches date format,
-        otherwise returns None
+        otherwise returns None.
     """
     try:
         return datetime.datetime.strptime(date_string, _format)
@@ -34,7 +35,7 @@ def parse_date_string(date_string: str, _format: str = "%Y-%m-%d") -> datetime.d
 
 
 def make_year(date: datetime.datetime) -> int:
-    """Extracts year from a datetime.datetime object"""
+    """Extracts year from a datetime.datetime object."""
     try:
         return int(date.year)
 
