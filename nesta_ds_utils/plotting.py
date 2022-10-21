@@ -1,5 +1,5 @@
 """
-Utils for styling and exporting figure using Altair.
+Module containing utils for styling and exporting figures using Altair.
 """
 
 import altair_saver as alt_saver
@@ -12,13 +12,13 @@ from pathlib import Path
 from nesta_ds_utils import file_ops
 
 
-def google_chrome_driver_setup() -> WebDriver:
+def _google_chrome_driver_setup() -> WebDriver:
     """Set up the driver to save figures"""
     driver = webdriver.Chrome(ChromeDriverManager().install())
     return driver
 
 
-def create_paths(path: os.PathLike, filetypes: Iterator[list]):
+def _create_paths(path: os.PathLike, filetypes: Iterator[list]):
     """Checks if the paths exist and if not creates them.
 
     Args:
@@ -29,7 +29,7 @@ def create_paths(path: os.PathLike, filetypes: Iterator[list]):
         os.makedirs(f"{path}/{filetype}", exist_ok=True)
 
 
-def save_png(fig, path: os.PathLike, name: str, driver: WebDriver):
+def _save_png(fig, path: os.PathLike, name: str, driver: WebDriver):
     """Save altair chart as a  raster png file.
 
     Args:
@@ -47,7 +47,7 @@ def save_png(fig, path: os.PathLike, name: str, driver: WebDriver):
     )
 
 
-def save_html(fig, path: os.PathLike, name: str):
+def _save_html(fig, path: os.PathLike, name: str):
     """Save altair chart as a html file.
 
     Args:
@@ -58,7 +58,7 @@ def save_html(fig, path: os.PathLike, name: str):
     fig.save(f"{path}/html/{name}.html")
 
 
-def save_svg(fig, path: os.PathLike, name: str, driver: WebDriver):
+def _save_svg(fig, path: os.PathLike, name: str, driver: WebDriver):
     """Save altair chart as vector svg file.
 
     Args:
@@ -92,14 +92,17 @@ def save(
         if path is None
         else file_ops._convert_str_to_pathlib_path(path)
     )
-    driver = google_chrome_driver_setup() if driver is None else driver
+    driver = _google_chrome_driver_setup() if driver is None else driver
     filetypes = ["png", "svg", "html"] if filetypes is None else filetypes
     # Check paths
-    create_paths(path, filetypes)
+    _create_paths(path, filetypes)
     # Export figures
-    if "png" in filetypes:
-        save_png(fig, path, name, driver)
-    if "html" in filetypes:
-        save_html(fig, path, name)
-    if "svg" in filetypes:
-        save_svg(fig, path, name, driver)
+    for type in filetypes:
+        if "png" == type:
+            _save_png(fig, path, name, driver)
+        elif "html" == type:
+            _save_html(fig, path, name)
+        elif "svg" == type:
+            _save_svg(fig, path, name, driver)
+        else:
+            raise Exception('Function supports only "png", "svg" and "html" formats.')
