@@ -14,13 +14,13 @@ Include:
 - A small code snippit to reproduce the bug (if possible)
 - If an error or exception is raised include the full traceback
 
-Once you have submitted the issue, post in the #dev channel in the data_analytics_nesta Slack workspace with the Issue number so
+Once you have submitted the issue, post in the [#dev channel](https://nesta.slack.com/app_redirect?channel=dev) with the Issue number so
 people are aware of the bug and can address it asap. If the bug is resolved via Slack (i.e. it is not a bug in the package code)
 please remember to delete the Issue.
 
 ### Suggesting a Feature:
 
-First post in the #dev channel in the data_analytics_nesta Slack workspace to begin discussion of the feature. A good feature
+First post in the [#dev channel](https://nesta.slack.com/app_redirect?channel=dev) to begin discussion of the feature. A good feature
 for the `nesta_ds_utils` package is:
 
 - General enough that it can be used across projects
@@ -34,7 +34,7 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 
 ## Developing a Feature or Addressing a Bug
 
-1. Post in the #dev channel in the data_analytics_nesta Slack workspace with the Issue number you plan to address
+1. Post in the [#dev channel](https://nesta.slack.com/app_redirect?channel=dev) with the Issue number you plan to address
 2. Clone the repository (we typically use the SSH protocol)
 3. Create a conda environment with python >= 3.8
 4. cd into the top level `nesta_ds_utils` directory
