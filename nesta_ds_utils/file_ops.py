@@ -60,7 +60,8 @@ def get_bucket_filenames_s3(bucket_name: str, dir_name: str = "") -> List[str]:
 
     Args:
         bucket_name (str): S3 bucket name
-        dir_name (str, optional): S3 bucket directory name. Defaults to ''.
+        dir_name (str, optional): Directory or sub-directory within an S3 bucket.
+            Defaults to '' (the top level bucket directory).
 
     Returns:
         List[str]: List of file names in bucket directory
