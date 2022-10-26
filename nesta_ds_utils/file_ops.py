@@ -64,7 +64,7 @@ def get_bucket_filenames_s3(bucket_name: str, dir_name: str = "") -> List[str]:
             Defaults to '' (the top level bucket directory).
 
     Returns:
-        List[str]: List of file names in bucket directory
+        List[str]: List of file names in bucket directory.
     """
     s3_resources = boto3.resource("s3")
     my_bucket = s3_resources.Bucket(bucket_name)
