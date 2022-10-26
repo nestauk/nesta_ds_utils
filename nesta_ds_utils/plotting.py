@@ -104,11 +104,11 @@ def save(
     _create_paths(path, filetypes)
     # Export figures
     for type in filetypes:
-        if "png" == type:
+        if type == "png":
             _save_png(fig, path, name, driver)
-        elif "html" == type:
+        elif type == "html":
             _save_html(fig, path, name)
-        elif "svg" == type:
+        elif type == "svg":
             _save_svg(fig, path, name, driver)
         else:
             raise Exception('Function supports only "png", "svg" and "html" formats.')
