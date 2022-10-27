@@ -6,19 +6,6 @@ import altair as alt
 import pytest
 
 
-def test_output_path():
-    """Test that _create_path create the folder structure reqeusted."""
-    plotting._create_paths("tests/temp/", ["png", "svg", "html"])
-    assert all(
-        [
-            Path(f"tests/temp/png").exists(),
-            Path(f"tests/temp/svg").exists(),
-            Path(f"tests/temp/html").exists(),
-        ]
-    )
-    shutil.rmtree("tests/temp/")
-
-
 def test_save_altair():
     """Test that that figures saved exist."""
     fig = alt.Chart(pd.DataFrame()).mark_bar()
@@ -40,4 +27,3 @@ def test_save_altair_exception():
     path = "tests/temp/"
     with pytest.raises(Exception):
         plotting.save(fig, "test_fig", path, filetypes=[""])
-    shutil.rmtree("tests/temp/")

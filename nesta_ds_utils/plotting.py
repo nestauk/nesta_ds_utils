@@ -7,7 +7,6 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.chrome.options import Options
-
 import os
 from typing import Iterator
 from pathlib import Path
@@ -22,17 +21,6 @@ def _google_chrome_driver_setup() -> WebDriver:
         ChromeDriverManager().install(), chrome_options=chrome_options
     )
     return driver
-
-
-def _create_paths(path: os.PathLike, filetypes: Iterator[list]):
-    """Checks if the paths exist and if not creates them.
-
-    Args:
-        path (os.PathLike: Path to save figure.
-        filetypes (Iterator[list]): List of file types to save figure.
-    """
-    for filetype in filetypes:
-        os.makedirs(f"{path}/{filetype}", exist_ok=True)
 
 
 def _save_png(fig, path: os.PathLike, name: str, driver: WebDriver):
@@ -100,15 +88,16 @@ def save(
     )
     driver = _google_chrome_driver_setup() if driver is None else driver
     filetypes = ["png", "svg", "html"] if filetypes is None else filetypes
-    # Check paths
-    _create_paths(path, filetypes)
     # Export figures
     for type in filetypes:
         if type == "png":
+            file_ops.make_path_if_not_exist(path / Path("png"))
             _save_png(fig, path, name, driver)
         elif type == "html":
+            file_ops.make_path_if_not_exist(path / Path("html"))
             _save_html(fig, path, name)
         elif type == "svg":
+            file_ops.make_path_if_not_exist(path / Path("svg"))
             _save_svg(fig, path, name, driver)
         else:
             raise Exception('Function supports only "png", "svg" and "html" formats.')
