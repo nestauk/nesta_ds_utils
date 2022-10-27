@@ -8,7 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.chrome.options import Options
 import os
-from typing import Iterator
+from typing import Union, List
 from pathlib import Path
 from nesta_ds_utils import file_ops
 
@@ -69,7 +69,7 @@ def save(
     name: str,
     path: os.PathLike = None,
     driver: WebDriver = None,
-    filetypes: Iterator[list] = None,
+    filetypes: Union[List, str] = None,
 ):
     """Saves an altair figure in multiple formats (png, html and svg files).
 
@@ -78,7 +78,7 @@ def save(
         name (str): Name to save the figure.
         path (os.PathLike, optional): Path where to save the figure. Defaults to 'None'.
         driver (WebDriver, optional): Webdriver to use. Defaults to 'None'.
-        filetypes (Iterator[list], optional): List of filetypes, eg: ['png', 'svg', 'html']. Defaults to None.
+        filetypes (Union[List, str], optional): List of filetypes. Defaults to ['png', 'svg', 'html'].
     """
     # Default values
     path = (
@@ -87,7 +87,11 @@ def save(
         else file_ops._convert_str_to_pathlib_path(path)
     )
     driver = _google_chrome_driver_setup() if driver is None else driver
-    filetypes = ["png", "svg", "html"] if filetypes is None else filetypes
+    if filetypes is None:
+        filetypes = ["png", "svg", "html"]
+    elif isinstance(filetypes, str):
+        filetypes = [filetypes]
+
     # Export figures
     for type in filetypes:
         if type == "png":
