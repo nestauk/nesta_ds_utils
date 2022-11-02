@@ -1,14 +1,20 @@
 import datetime
+from http.client import _DataType
 import sys
 import numpy as np
+from typing import Union
 
 
-def parse_date_string(date_string: str, _format: str = "%Y-%m-%d") -> datetime.datetime:
+def parse_date_string(
+    date_string: str,
+    format: Union[str, list] = "%Y-%m-%d",
+    null_value: Union[float, str] = np.nan,
+) -> datetime.datetime:
     """parses a date string into a datetime object
 
     Args:
         date_string (str): string describing a date.
-        _format (str, optional): date format. Defaults to "%Y-%m-%d".
+        format (str, optional): date format. Defaults to "%Y-%m-%d".
         For additional date format options refer to `datetime documentation <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.
 
 
@@ -17,11 +23,11 @@ def parse_date_string(date_string: str, _format: str = "%Y-%m-%d") -> datetime.d
         otherwise returns None.
     """
     try:
-        return datetime.datetime.strptime(date_string, _format)
+        return datetime.datetime.strptime(date_string, format)
 
     except ValueError:
         sys.stderr.write(
-            "Date string {} did not match date format {}".format(date_string, _format)
+            "Date string {} did not match date format {}".format(date_string, format)
         )
         return np.nan
 
