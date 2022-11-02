@@ -19,6 +19,9 @@ Utility Functions
 .. toctree::
    data_manipulation
    :maxdepth: 3
+.. toctree::
+   plotting
+   :maxdepth: 3
 
 Tests
 ==================
@@ -27,6 +30,9 @@ Tests
    :maxdepth: 3
 .. toctree::
    test_data_manipulation
+   :maxdepth: 3
+.. toctree::
+   test_plotting
    :maxdepth: 3
 
 
