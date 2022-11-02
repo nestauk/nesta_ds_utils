@@ -44,7 +44,6 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 8. Add new functions to corresponding modules, or new modules if feature doesn't fit within existing modules
 9. Add tests for any new functions to corresponding test module located within tests folder
 10. Update documentation within `nesta_ds_utils/docs/source`:
-
     - If just adding a new feature to an existing module modify the .rst files corresponding to the module and tests that you modified
     - If adding a new module, add new .rst files for your module and test module, modify index.rst to include your modules, and modify conf.py to import your modules
 
