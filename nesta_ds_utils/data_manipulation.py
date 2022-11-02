@@ -1,5 +1,4 @@
 import datetime
-from http.client import _DataType
 import sys
 import numpy as np
 from typing import Union
@@ -45,7 +44,7 @@ def parse_date_string(
     else:
         for format_option in format:
             try:
-                return datetime.datetime.strptime(date_string, format)
+                return datetime.datetime.strptime(date_string, format_option)
 
             except TypeError:
                 sys.stderr.write(
@@ -57,6 +56,12 @@ def parse_date_string(
 
             except ValueError:
                 continue
+
+        sys.stderr.write(
+            "Date string {} did not match any provided formats: {}".format(
+                date_string, format
+            )
+        )
         return error_value
 
 

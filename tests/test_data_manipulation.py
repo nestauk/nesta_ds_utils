@@ -19,20 +19,40 @@ def test_str_to_datetime_format():
     """tests that when a string is passed to parse_date_string with a specified format
     different from the default it returns a datetime object
     """
-    date = data_manipulation.parse_date_string("10/10/2022", _format="%m/%d/%Y")
+    date = data_manipulation.parse_date_string("10/10/2022", format="%m/%d/%Y")
+    assert isinstance(date, datetime.datetime)
+
+
+def test_str_to_datetime_formatlist():
+    """test that when a list of possible formats is passed as date format it
+    identifies the correct format and returns datetime object.
+    """
+    date = data_manipulation.parse_date_string(
+        "10-10-2022", format=["%m/%d/%Y", "%m-%d-%Y"]
+    )
     assert isinstance(date, datetime.datetime)
 
 
 def test_str_to_datetime_incorrect_format():
-    """tests that when a string is passed to parse_date_string in the incorrect format it returns NaN"""
+    """tests that when a string is passed to parse_date_string in
+    the incorrect format it returns NaN"""
     date = data_manipulation.parse_date_string("10/10/2022")
     assert np.isnan(date)
 
 
 def test_nonstring_to_datetime():
-    """tests that when a non-string is passed to parse_date_string it returns NaN"""
+    """tests that when a non-string is passed to parse_date_string with
+    no specified error_value it returns NaN"""
     date = data_manipulation.parse_date_string(None)
     assert np.isnan(date)
+
+
+def test_nonstring_to_datetime_return_str():
+    """tests that when a non-string is passed to parse_date_string with
+    a string specified as error_value it returns the string
+    """
+    date = data_manipulation.parse_date_string(None, error_value="None")
+    assert date == "None"
 
 
 def test_datetime_to_year():
