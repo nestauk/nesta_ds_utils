@@ -65,15 +65,47 @@ def parse_date_string(
         return error_value
 
 
-def make_year(date: datetime.datetime) -> int:
-    """Extracts year from a datetime.datetime object."""
-    try:
-        return int(date.year)
+def get_date_part(date: datetime.datetime, date_part: str = "year") -> int:
+    """extracts a specified date part from a datetime object
 
-    except AttributeError:
-        sys.stderr.write(
-            "argument {} passed as datetime was type {} not datetime.datetime".format(
-                date, type(date)
-            )
+    Args:
+        date (datetime.datetime): datetime object
+        date_part (str, optional): part to extract, options are year, month, or day. Defaults to "year".
+
+    Returns:
+        int: date part as integer
+    """
+    attribute_error_message = (
+        "argument {} passed as datetime was type {} not datetime.datetime".format(
+            date, type(date)
         )
-        return np.nan
+    )
+
+    if date_part == "year":
+        try:
+            return int(date.year)
+
+        except AttributeError:
+            sys.stderr.write(attribute_error_message)
+            return np.nan
+
+    elif date_part == "month":
+        try:
+            return int(date.month)
+
+        except AttributeError:
+            sys.stderr.write(attribute_error_message)
+            return np.nan
+
+    elif date_part == "day":
+        try:
+            return int(date.day)
+
+        except AttributeError:
+            sys.stderr.write(attribute_error_message)
+            return np.nan
+
+    else:
+        sys.stderr.write(
+            "Invalid option passed as date_part. Acceptable values are year, month, or day"
+        )

@@ -56,13 +56,27 @@ def test_nonstring_to_datetime_return_str():
 
 
 def test_datetime_to_year():
-    """tests that when a datetime object is passed to make_year it returns a year"""
+    """tests that when a datetime object is passed to get_date_part with no specified part it returns the year"""
     date = data_manipulation.parse_date_string("2022-10-10")
-    year = data_manipulation.make_year(date)
+    year = data_manipulation.get_date_part(date)
     assert year == 2022
 
 
+def test_datetime_to_month():
+    """tests that when a datetime object is passed to get_date_part with month as date_part it returns the month"""
+    date = data_manipulation.parse_date_string("2022-10-22")
+    month = data_manipulation.get_date_part(date, date_part="month")
+    assert month == 10
+
+
+def test_datetime_to_date():
+    """tests that when a datetime object is passed to get_date_part with day as date_part it returns the day"""
+    date = data_manipulation.parse_date_string("2022-10-22")
+    day = data_manipulation.get_date_part(date, date_part="day")
+    assert day == 22
+
+
 def test_string_to_year():
-    """tests that when a string is passed to make_year it returns np"""
-    year = data_manipulation.make_year("2022-10-10")
+    """tests that when a string is passed to get_date_part it returns np.NaN"""
+    year = data_manipulation.get_date_part("2022-10-10")
     assert np.isnan(year)
