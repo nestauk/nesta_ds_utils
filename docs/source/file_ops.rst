@@ -6,6 +6,3 @@ file_ops
 .. autofunction:: file_ops.make_path_if_not_exist
 
 .. autofunction:: file_ops.extractall
-
-.. autofunction:: file_ops._convert_str_to_pathlib_path
-
