@@ -38,4 +38,6 @@ def test_save_altair_exception():
     fig = alt.Chart(pd.DataFrame()).mark_bar()
     path = "tests/temp/"
     with pytest.raises(Exception):
-        plotting.save(fig, "test_fig", path, save_png=False)
+        plotting.save(
+            fig, "test_fig", path, save_png=False, save_html=False, save_svg=False
+        )
