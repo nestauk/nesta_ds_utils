@@ -49,5 +49,13 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 
       **All of your functions must have properly formatted docstrings (we are using [Google](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) format) to be picked up by the documentation**
 
-11. Open a PR and commit your changes to the branch you created
-12. Push your changes to your branch and ensure that all tests ran successfully
+      We use Sphinx for generating documentation. See [here](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) for more information on updating automatically generated documentation using Sphinx.
+
+11. Add any new requirements in `setup.cfg`:
+
+    - Package requirements should go under `install_requires`
+    - Development only requirements should go under `options.extras_require.dev`
+    - Testing only requirements should go under `options.extras_require.test`
+
+12. Open a PR and commit your changes to the branch you created
+13. Push your changes to your branch and ensure that all tests ran successfully
