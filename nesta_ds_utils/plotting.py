@@ -4,6 +4,7 @@ Module containing utils for styling and exporting figures using Altair.
 
 import altair_saver as alt_saver
 from altair.vegalite.v4.api import Chart
+import altair as alt
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -120,3 +121,81 @@ def save(
 
     if save_svg:
         _save_svg(fig, path, name, scale_factor, driver)
+
+
+def nesta_theme():
+    """Define Nesta's styling theme for altair figures."""
+    NESTA_COLOURS = [
+        "#0000FF",
+        "#FDB633",
+        "#D2C9C0",
+        "#18A48C",
+        "#EB003B",
+        "#9A1BBE",
+        "#FF6E47",
+        "#0F294A",
+        "#97D9E3",
+        "#A59BEE",
+        "#F6A4B7",
+        "#646363",
+        "#FFFFFF",
+        "#000000",
+    ]
+    font = "Averta"  # to add alternative/exception if Averta not installed
+    base_size = 20
+    font_color = "#000000"
+    grey_color = "#D2C9C0"
+    lg_font = base_size * 1.25
+    sm_font = base_size * 0.8
+    xl_font = base_size * 1.75
+
+    config = {
+        "config": {
+            "title": {
+                "font": font,
+                "color": font_color,
+                "fontSize": lg_font,
+                "anchor": "start",
+            },
+            "axis": {
+                "titleFont": font,
+                "titleColor": font_color,
+                "titleFontSize": sm_font,
+                "labelFont": font,
+                "labelColor": font_color,
+                "labelFontSize": sm_font,
+                "gridColor": grey_color,
+                "domainColor": font_color,
+                "tickColor": "#fff",
+            },
+            "header": {
+                "labelFont": font,
+                "titleFont": font,
+                "labelFontSize": base_size,
+                "titleFontSize": base_size,
+            },
+            "legend": {
+                "titleFont": font,
+                "titleColor": font_color,
+                "titleFontSize": sm_font,
+                "labelFont": font,
+                "labelColor": font_color,
+                "labelFontSize": sm_font,
+            },
+            "range": {
+                "category": NESTA_COLOURS,
+                "scheme": NESTA_COLOURS,
+                "diverging": NESTA_COLOURS,
+                "heatmap": NESTA_COLOURS,
+                "ramp": NESTA_COLOURS,
+                "ordinal": NESTA_COLOURS,
+            },
+        }
+    }
+    return config
+
+
+def setup_theme():
+    """Enable Nesta's theme"""
+    alt.themes.register("nesta_theme", nesta_theme)
+    alt.themes.enable("nesta_theme")
