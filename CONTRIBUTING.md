@@ -44,6 +44,7 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 8. Add new functions to corresponding modules, or new modules if feature doesn't fit within existing modules
 9. Add tests for any new functions to corresponding test module located within tests folder
 10. Update documentation within `nesta_ds_utils/docs/source`:
+
     - If just adding a new feature to an existing module modify the .rst files corresponding to the module and tests that you modified
     - If adding a new module, add new .rst files for your module and test module, modify index.rst to include your modules, and modify conf.py to import your modules
 
@@ -51,9 +52,9 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 
       We use Sphinx for generating documentation. See [here](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) for more information on updating automatically generated documentation using Sphinx.
 
-11. Add any new requirements in `setup.cfg`:
+11. Add any new requirements in `setup.cfg` (make sure to include versions):
 
-    - Package requirements should go under `install_requires`
+    - Package requirements should go under `options.install_requires`
     - Development only requirements should go under `options.extras_require.dev`
     - Testing only requirements should go under `options.extras_require.test`
 
