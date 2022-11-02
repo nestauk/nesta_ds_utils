@@ -24,13 +24,16 @@ def _google_chrome_driver_setup() -> WebDriver:
     return driver
 
 
-def _save_png(fig: Chart, path: os.PathLike, name: str, driver: WebDriver):
+def _save_png(
+    fig: Chart, path: os.PathLike, name: str, scale_factor: int, driver: WebDriver
+):
     """Save altair chart as a  raster png file.
 
     Args:
         fig: Altair chart.
         path (os.PathLike): Path where to save the figure.
         name (str): Name of figure.
+        scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
     """
     alt_saver.save(
@@ -38,31 +41,39 @@ def _save_png(fig: Chart, path: os.PathLike, name: str, driver: WebDriver):
         f"{path}/{name}.png",
         method="selenium",
         webdriver=driver,
-        scale_factor=5,
+        scale_factor=scale_factor,
     )
 
 
-def _save_html(fig, path: os.PathLike, name: str):
+def _save_html(fig, path: os.PathLike, name: str, scale_factor: int):
     """Save altair chart as a html file.
 
     Args:
         fig: Altair chart.
         path (os.PathLike): Path where to save the figure.
         name (str): Name of figure.
+        scale_factor (int): Saving scale factor.
     """
-    fig.save(f"{path}/{name}.html")
+    fig.save(f"{path}/{name}.html", scale_factor=scale_factor)
 
 
-def _save_svg(fig, path: os.PathLike, name: str, driver: WebDriver):
+def _save_svg(fig, path: os.PathLike, name: str, scale_factor: int, driver: WebDriver):
     """Save altair chart as vector svg file.
 
     Args:
         fig: Altair chart.
         path (os.PathLike): Path where to save the figure.
         name (str): Name of figure.
+        scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
     """
-    alt_saver.save(fig, f"{path}/{name}.svg", method="selenium", webdriver=driver)
+    alt_saver.save(
+        fig,
+        f"{path}/{name}.svg",
+        method="selenium",
+        scale_factor=scale_factor,
+        webdriver=driver,
+    )
 
 
 def save(
@@ -73,6 +84,7 @@ def save(
     save_png: bool = True,
     save_html: bool = False,
     save_svg: bool = False,
+    scale_factor: int = 5,
 ):
     """Saves an altair figure in multiple formats (png, html and svg files).
 
@@ -84,6 +96,7 @@ def save(
         save_png (bool, optional): Option to save figure as 'png'. Default to True.
         save_html (bool, optional): Option to save figure as 'html'. Default to False.
         save_svg (bool, optional): Option to save figure as 'svg'. Default to False.
+        scale_factor (int, optional): Saving scale factor. Default to 5.
     """
     path = file_ops._convert_str_to_pathlib_path(path)
 
@@ -95,15 +108,13 @@ def save(
     if save_png or save_svg:
         driver = _google_chrome_driver_setup() if driver is None else driver
 
+    file_ops.make_path_if_not_exist(path)
     # Export figures
     if save_png:
-        file_ops.make_path_if_not_exist(path)
-        _save_png(fig, path, name, driver)
+        _save_png(fig, path, name, scale_factor, driver)
 
     if save_html:
-        file_ops.make_path_if_not_exist(path)
-        _save_html(fig, path, name)
+        _save_html(fig, path, name, scale_factor)
 
     if save_svg:
-        file_ops.make_path_if_not_exist(path)
-        _save_svg(fig, path, name, driver)
+        _save_svg(fig, path, name, scale_factor, driver)
