@@ -69,14 +69,14 @@ def test_datetime_to_month():
     assert month == 10
 
 
-def test_datetime_to_date():
+def test_datetime_to_day():
     """tests that when a datetime object is passed to get_date_part with day as date_part it returns the day"""
     date = data_manipulation.parse_date_string("2022-10-22")
     day = data_manipulation.get_date_part(date, date_part="day")
     assert day == 22
 
 
-def test_string_to_year():
+def test_string_to_datepart():
     """tests that when a string is passed to get_date_part it returns np.NaN"""
     year = data_manipulation.get_date_part("2022-10-10")
     assert np.isnan(year)

@@ -14,7 +14,7 @@ def parse_date_string(
     Args:
         date_string (str): string describing a date.
         format (str or list, optional): date format or list of possible date formats. Defaults to "%Y-%m-%d".
-        For additional date format options refer to `datetime documentation <https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes>`_.
+        For additional date format options refer to datetime documentation
         error_value (float or str, optional): value to use for null or improperly formatted values. Defaults to numpy.nan.
 
     Returns:
