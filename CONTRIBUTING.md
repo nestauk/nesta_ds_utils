@@ -36,7 +36,7 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 
 1. Post in the [#dev channel](https://nesta.slack.com/app_redirect?channel=dev) with the Issue number you plan to address
 2. Clone the repository (we typically use the SSH protocol)
-3. Create a conda environment with python >= 3.8
+3. Create and activate a conda environment with python >= 3.8
 4. cd into the top level `nesta_ds_utils` directory
 5. Run `pip install -e ."[dev]"` to install the package with the developer requirements
 6. Run `pre-commit install` to setup pre-commit
