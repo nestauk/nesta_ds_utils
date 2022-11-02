@@ -27,7 +27,7 @@ def parse_date_string(
 
         except ValueError:
             sys.stderr.write(
-                "Date string {} did not match date format {}".format(
+                "Date string {} did not match date format {}\n".format(
                     date_string, format
                 )
             )
@@ -35,7 +35,7 @@ def parse_date_string(
 
         except TypeError:
             sys.stderr.write(
-                "argument {} passed as date_string was type {} not string".format(
+                "Argument {} passed as date_string was type {} not string\n".format(
                     date_string, type(date_string)
                 )
             )
@@ -48,7 +48,7 @@ def parse_date_string(
 
             except TypeError:
                 sys.stderr.write(
-                    "argument {} passed as date_string was type {} not string".format(
+                    "Argument {} passed as date_string was type {} not string\n".format(
                         date_string, type(date_string)
                     )
                 )
@@ -58,7 +58,7 @@ def parse_date_string(
                 continue
 
         sys.stderr.write(
-            "Date string {} did not match any provided formats: {}".format(
+            "Date string {} did not match any provided formats: {}\n".format(
                 date_string, format
             )
         )
@@ -76,7 +76,7 @@ def get_date_part(date: datetime.datetime, date_part: str = "year") -> int:
         int: date part as integer
     """
     attribute_error_message = (
-        "argument {} passed as datetime was type {} not datetime.datetime".format(
+        "Argument {} passed as datetime was type {} not datetime.datetime\n".format(
             date, type(date)
         )
     )
@@ -107,5 +107,5 @@ def get_date_part(date: datetime.datetime, date_part: str = "year") -> int:
 
     else:
         sys.stderr.write(
-            "Invalid option passed as date_part. Acceptable values are year, month, or day"
+            "Invalid option passed as date_part. Acceptable values are year, month, or day\n"
         )
