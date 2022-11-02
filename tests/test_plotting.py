@@ -6,7 +6,7 @@ import altair as alt
 import pytest
 
 
-def test_save__png_altair():
+def test_save_png_altair():
     """Test that that figures saved as png exist."""
     fig = alt.Chart(pd.DataFrame()).mark_bar()
     path = "tests/temp/"
