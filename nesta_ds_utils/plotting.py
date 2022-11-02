@@ -45,7 +45,7 @@ def _save_png(
     )
 
 
-def _save_html(fig, path: os.PathLike, name: str, scale_factor: int):
+def _save_html(fig: Chart, path: os.PathLike, name: str, scale_factor: int):
     """Save altair chart as a html file.
 
     Args:
@@ -57,7 +57,9 @@ def _save_html(fig, path: os.PathLike, name: str, scale_factor: int):
     fig.save(f"{path}/{name}.html", scale_factor=scale_factor)
 
 
-def _save_svg(fig, path: os.PathLike, name: str, scale_factor: int, driver: WebDriver):
+def _save_svg(
+    fig: Chart, path: os.PathLike, name: str, scale_factor: int, driver: WebDriver
+):
     """Save altair chart as vector svg file.
 
     Args:
@@ -77,7 +79,7 @@ def _save_svg(fig, path: os.PathLike, name: str, scale_factor: int, driver: WebD
 
 
 def save(
-    fig,
+    fig: Chart,
     name: str,
     path: Union[os.PathLike, str] = "figures",
     driver: WebDriver = None,
