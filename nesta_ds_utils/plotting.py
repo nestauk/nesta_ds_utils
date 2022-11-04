@@ -11,6 +11,8 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.chrome.options import Options
 import os
 from typing import Union, List, Type
+import warnings
+from matplotlib import font_manager
 from pathlib import Path
 from nesta_ds_utils import file_ops
 
@@ -123,6 +125,26 @@ def save(
         _save_svg(fig, path, name, scale_factor, driver)
 
 
+def _find_averta() -> str:
+    """Search for averta font, otherwise return 'Helvetica' and raise a warning.
+
+    Returns:
+        str: Return averta installation name, if found. Return 'Helvetica' otherwise.
+    """
+    font = False
+    for font_path in font_manager.findSystemFonts(fontext="ttf"):
+        if "averta" in font_path:
+            font = "averta"
+            break
+        if "Averta" in font_path:
+            font = "Averta"
+            break
+    if not font:
+        warnings.warn("Averta font could not be located. Switched to 'Helvetica'")
+        font = "Helvetica"
+    return font
+
+
 def nesta_theme():
     """Define Nesta's styling theme for altair figures."""
     NESTA_COLOURS = [
@@ -141,7 +163,7 @@ def nesta_theme():
         "#FFFFFF",
         "#000000",
     ]
-    font = "Averta"  # to add alternative/exception if Averta not installed
+    font = _find_averta()
     base_size = 20
     font_color = "#000000"
     grey_color = "#D2C9C0"
