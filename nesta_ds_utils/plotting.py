@@ -145,7 +145,7 @@ def _find_averta() -> str:
     return font
 
 
-def nesta_theme():
+def nesta_theme() -> dict:
     """Define Nesta's styling theme for altair figures."""
     NESTA_COLOURS = [
         "#0000FF",
