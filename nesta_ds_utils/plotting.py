@@ -140,7 +140,7 @@ def _find_averta() -> str:
             font = "Averta"
             break
     if not font:
-        warnings.warn("Averta font could not be located. Switched to 'Helvetica'")
+        warnings.warn("Averta font could not be located. Using 'Helvetica' instead")
         font = "Helvetica"
     return font
 
@@ -169,8 +169,6 @@ def nesta_theme():
     grey_color = "#D2C9C0"
     lg_font = base_size * 1.25
     sm_font = base_size * 0.8
-    xl_font = base_size * 1.75
-
     config = {
         "config": {
             "title": {
