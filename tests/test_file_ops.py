@@ -226,5 +226,5 @@ def test_upload_file():
     s3.download_file("test-bucket", "dummy.csv", "tests/temp/dummy.csv")
     with open("tests/temp/dummy.csv", "r") as f:
         text = f.read()
-        assert text == "Test"
+        assert text == "Test\n"
     shutil.rmtree("tests/temp/")
