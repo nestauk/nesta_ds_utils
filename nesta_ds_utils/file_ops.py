@@ -7,6 +7,7 @@ import os
 import boto3
 from fnmatch import fnmatch
 import pandas as pd
+import numpy as np
 
 
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
@@ -89,6 +90,14 @@ def _df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
         df.to_csv(buffer)
     elif fnmatch(save_file_dir, "*.json"):
         df.to_json(buffer)
+    elif fnmatch(save_file_dir, "*.pkl"):
+        df.to_pickle(buffer)
+    elif fnmatch(save_file_dir, "*.xml"):
+        df.to_xml(buffer)
+    else:
+        raise Exception(
+            "Automatic convertion from pd.DataFrame currently supported only for 'csv', 'json', 'pkl' and 'xml'."
+        )
     buffer.seek(0)
     return buffer
 
@@ -98,7 +107,7 @@ def _fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
 
     Args:
         buffer (io.BytesIO): Bytes file object.
-        file_dir (str): Loading file name.
+        load_file_dir (str): Loading file name.
 
     Returns:
         pd.DataFrame: Dataframe converted
@@ -107,46 +116,80 @@ def _fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
         df = pd.read_csv(fileobj)
     elif fnmatch(load_file_dir, "*.json"):
         df = pd.read_json(fileobj)
+    elif fnmatch(load_file_dir, "*.pkl"):
+        df = pd.read_pickle(fileobj)
+    elif fnmatch(load_file_dir, "*.xml"):
+        df = pd.read_xml(fileobj)
+    else:
+        raise Exception(
+            "Automatic convertion into pd.DataFrame currently supported only for 'csv', 'json', 'pkl' and 'xml'."
+        )
     return df
 
 
-def upload_data_s3(
-    data: Union[io.BytesIO, pd.DataFrame], bucket: str, save_file_path: str
+def upload_obj(
+    obj: Union[io.BytesIO, pd.DataFrame], bucket: str, file_name_to: str, **kwargs
 ):
-    """Upload data to S3 location.
+    """Uploads data from memory to S3 location.
 
     Args:
-        data (Union[io.BytesIO, pd.DataFrame]): Data to upload.
+        obj (Union[io.BytesIO, pd.DataFrame]): Data to upload.
         bucket (str): Bucket's name.
-        save_file_path (str): Path location to save data.
+        file_name_to (str): Path location to save data.
+
+    Raises:
+        Exception: Util supports data only as "io.BytesIO" or "pd.DataFrame".
     """
     s3 = boto3.client("s3")
-    if isinstance(data, pd.DataFrame):
-        obj = _df_to_fileobj(data, save_file_path)
-        s3.upload_fileobj(obj, bucket, save_file_path)
-    elif isinstance(data, io.BytesIO):
-        s3.upload_fileobj(data, bucket, save_file_path)
+    if isinstance(obj, pd.DataFrame):
+        obj = _df_to_fileobj(obj, file_name_to)
+    if isinstance(obj, io.BytesIO):
+        s3.upload_fileobj(obj, bucket, file_name_to, kwargs)
     else:
-        raise Exception(
-            'Function supports data only as "io.BytesIO" or "pd.DataFrame".'
-        )
+        raise Exception('Util supports data only as "io.BytesIO" or "pd.DataFrame".')
 
 
-def download_data_s3(
-    bucket: str, file_path: str, asDataFrame: bool = False
+def download_obj(
+    bucket: str, file_name_from: str, asDataFrame: bool = False, **kwargs
 ) -> Union[io.BytesIO, pd.DataFrame]:
-    """Download data from S3 location.
+    """Download data to memory from S3 location.
 
     Args:
         bucket (str): Bucket's name.
-        file_path (str): File path to loading data.
+        file_name_from (str): Path to data in S3.
         asDataFrame (bool, optional): If True: return the data as pd.DataFrame. If False: return data as io.BytesIO. Default: False.
 
     Returns:
-        Union[io.BytesIO, pd.DataFrame]: Downloaded data.
+        Union[io.BytesIO, pd.DataFrame]: Donwloaded data.
     """
     s3 = boto3.client("s3")
     fileobj = io.BytesIO()
-    s3.download_fileobj(bucket, file_path, fileobj)
+    s3.download_fileobj(bucket, file_name_from, fileobj, kwargs)
     fileobj.seek(0)
-    return _fileobj_to_df(fileobj, file_path) if asDataFrame else fileobj
+    return _fileobj_to_df(fileobj, file_name_from) if asDataFrame else fileobj
+
+
+def upload_file(file_name_from: str, bucket: str, file_name_to: str, **kwargs):
+    """Upload local file from disk to S3 location.
+
+    Args:
+        file_name_from (str): Path to local file.
+        bucket (str): Bucket's name.
+        file_name_to (str): Destination path in S3.
+    """
+    s3 = boto3.client("s3")
+    s3.upload_file(file_name_from, bucket, file_name_to, kwargs)
+
+
+def download_file(file_name_from: str, bucket: str, file_name_to: str, **kwargs):
+    """Download data from S3 to local file on disk.
+
+    Args:
+        file_name_from (str): Path to data in S3
+        bucket (str): Buket's name
+        file_name_to (str): Destination path to disk.
+    """
+    # Create folder if not existing
+    make_path_if_not_exist(_convert_str_to_pathlib_path(file_name_to).parents[0])
+    s3 = boto3.client("s3")
+    s3.download_file(bucket, file_name_from, file_name_to, kwargs)
