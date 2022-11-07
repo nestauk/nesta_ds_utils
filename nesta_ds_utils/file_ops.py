@@ -157,7 +157,8 @@ def download_obj(
     Args:
         bucket (str): Bucket's name.
         file_name_from (str): Path to data in S3.
-        asDataFrame (bool, optional): If True: return the data as pd.DataFrame. If False: return data as io.BytesIO. Default: False.
+        asDataFrame (bool, optional): If True: return the data as pd.DataFrame.
+        If False: return data as io.BytesIO. Default: False.
 
     Returns:
         Union[io.BytesIO, pd.DataFrame]: Donwloaded data.
