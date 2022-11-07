@@ -15,10 +15,34 @@ test_file_ops
 
 .. autofunction:: test_file_ops.test_zip_not_deleted
 
-.. autofunction:: test_file_ops.test_download_s3_dataframe
-
-.. autofunction:: test_file_ops.test_download_s3_fileobj
-
-.. autofunction:: test_file_ops.test_upload_s3_exception
-
 .. autofunction:: test_file_ops.test_get_bucket_filenames_s3
+
+.. autofunction:: test_file_ops.test_upload_obj_exception
+
+.. autofunction:: test_file_ops.test_fileobj_to_df_exception
+
+.. autofunction:: test_file_ops.test_fileobj_to_df_csv
+
+.. autofunction:: test_file_ops.test_fileobj_to_df_json
+
+.. autofunction:: test_file_ops.test_fileobj_to_df_pkl
+
+.. autofunction:: test_file_ops.test_fileobj_to_df_xml
+
+.. autofunction:: test_file_ops.test_df_to_fileobj_exception
+
+.. autofunction:: test_file_ops.test_df_to_fileobj_csv
+
+.. autofunction:: test_file_ops.test_df_to_fileobj_json
+
+.. autofunction:: test_file_ops.test_df_to_fileobj_pkl
+
+.. autofunction:: test_file_ops.test_df_to_fileobj_xml
+
+.. autofunction:: test_file_ops.test_download_obj_fieobj
+
+.. autofunction:: test_file_ops.test_download_obj_dataframe
+
+.. autofunction:: test_file_ops.test_download_file
+
+.. autofunction:: test_file_ops.test_upload_file
