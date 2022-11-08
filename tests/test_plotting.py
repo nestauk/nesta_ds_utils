@@ -41,3 +41,12 @@ def test_save_altair_exception():
         plotting.save(
             fig, "test_fig", path, save_png=False, save_html=False, save_svg=False
         )
+
+
+def test_nesta_theme_activation():
+    """Test that the Nesta's theme is activates by checking the first color of
+    the palette is Nesta's blue."""
+    alt.themes.enable("default")
+    fig = alt.Chart(pd.DataFrame()).mark_bar()
+    plotting.setup_theme()
+    assert fig.to_dict()["config"]["range"]["category"][0] == "#0000FF"

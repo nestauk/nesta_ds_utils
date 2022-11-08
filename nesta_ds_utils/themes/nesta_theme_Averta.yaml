@@ -1,0 +1,49 @@
+config:
+  axis:
+    domainColor: "#000000"
+    gridColor: "#D2C9C0"
+    labelColor: "#000000"
+    labelFont: Averta
+    labelFontSize: 16.0
+    tickColor: "#fff"
+    titleColor: "#000000"
+    titleFont: Averta
+    titleFontSize: 16.0
+  header:
+    labelFont: Averta
+    labelFontSize: 20
+    titleFont: Averta
+    titleFontSize: 20
+  legend:
+    labelColor: "#000000"
+    labelFont: Averta
+    labelFontSize: 16.0
+    titleColor: "#000000"
+    titleFont: Averta
+    titleFontSize: 16.0
+  range:
+    category: &id001
+      - "#0000FF"
+      - "#FDB633"
+      - "#D2C9C0"
+      - "#18A48C"
+      - "#EB003B"
+      - "#9A1BBE"
+      - "#FF6E47"
+      - "#0F294A"
+      - "#97D9E3"
+      - "#A59BEE"
+      - "#F6A4B7"
+      - "#646363"
+      - "#FFFFFF"
+      - "#000000"
+    diverging: *id001
+    heatmap: *id001
+    ordinal: *id001
+    ramp: *id001
+    scheme: *id001
+  title:
+    anchor: start
+    color: "#000000"
+    font: Averta
+    fontSize: 25.0
