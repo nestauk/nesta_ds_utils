@@ -9,3 +9,5 @@ test_plotting
 .. autofunction:: test_save_svg_altair
 
 .. autofunction:: plotting.test_save_altair_exception
+
+.. autofunction:: plotting.test_nesta_theme_activation
