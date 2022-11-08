@@ -143,15 +143,22 @@ def _find_averta() -> str:
     return font
 
 
-def nesta_theme() -> dict:
-    """Define Nesta's styling theme for altair figures."""
+def _load_nesta_theme() -> dict:
+    """Define Nesta's styling theme using format expected by altair."""
     font = _find_averta()
     with open("nesta_ds_utils/themes/nesta_theme_" + font + ".yaml", "r") as stream:
         config = yaml.safe_load(stream)
     return config
 
 
-def setup_theme():
-    """Enable Nesta's theme"""
-    alt.themes.register("nesta_theme", nesta_theme)
-    alt.themes.enable("nesta_theme")
+def setup_theme(theme_name="nesta"):
+    """Enable a theme for an altair figure. Currently only supports nesta theme.
+
+    Args:
+        theme_name (str, optional): Theme to load. Defaults to 'nesta'. Currently only acceptable value is 'nesta'.
+    """
+    if theme_name == "nesta":
+        alt.themes.register("nesta_theme", _load_nesta_theme)
+        alt.themes.enable("nesta_theme")
+    else:
+        warnings.warn("Invalid theme name. Currently only supports nesta theme.")
