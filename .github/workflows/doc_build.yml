@@ -22,6 +22,7 @@ jobs:
           make html
           cd ..
       - name: Push changes to working branch
+        run: |
           git status
           git add docs/*
           git commit -m "auto updating docs"
