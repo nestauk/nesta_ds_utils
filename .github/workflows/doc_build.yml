@@ -24,6 +24,6 @@ jobs:
       - name: Push changes to working branch
         run: |
           git status
-          git add docs/*
+          git add -f docs/*
           git commit -m "auto updating docs"
           git push
