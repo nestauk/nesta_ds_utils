@@ -20,3 +20,9 @@ jobs:
         run: |
           cd docs
           make html
+          cd ..
+      - name: Push changes to working branch
+          git status
+          git add docs/*
+          git commit -m "auto updating docs"
+          git push
