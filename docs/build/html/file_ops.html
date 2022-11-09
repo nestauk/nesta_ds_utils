@@ -8,18 +8,16 @@
 
     <title>file_ops &#8212; nesta_ds_utils 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx_highlight.js"></script>
-    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="test_file_ops" href="test_file_ops.html" />
+    <link rel="next" title="data_manipulation" href="data_manipulation.html" />
     <link rel="prev" title="Welcome to nesta_ds_utils’s documentation!" href="index.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -29,7 +27,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="test_file_ops.html" title="test_file_ops"
+          <a href="data_manipulation.html" title="data_manipulation"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to nesta_ds_utils’s documentation!"
@@ -48,26 +46,9 @@
 <h1>file_ops<a class="headerlink" href="#file-ops" title="Permalink to this heading">¶</a></h1>
 <p><strong>file_ops</strong> contains a variety of file related operations commonly used by the DAP team</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="file_ops._convert_str_to_pathlib_path">
-<span class="sig-prename descclassname"><span class="pre">file_ops.</span></span><span class="sig-name descname"><span class="pre">_convert_str_to_pathlib_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/file_ops.html#_convert_str_to_pathlib_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#file_ops._convert_str_to_pathlib_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a path written as a string to pathlib format</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em><em> or </em><em>pathlib.path</em>) – file path in string format</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>path in pathlib format</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pathlib.Path</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="file_ops.make_path_if_not_exist">
 <span class="sig-prename descclassname"><span class="pre">file_ops.</span></span><span class="sig-name descname"><span class="pre">make_path_if_not_exist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/file_ops.html#make_path_if_not_exist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#file_ops.make_path_if_not_exist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if path exists, if it does not exist then create it</p>
+<dd><p>Check if path exists, if it does not exist then create it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em><em> or </em><em>str</em>) – file path</p>
@@ -78,13 +59,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="file_ops.extractall">
 <span class="sig-prename descclassname"><span class="pre">file_ops.</span></span><span class="sig-name descname"><span class="pre">extractall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_zip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/file_ops.html#extractall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#file_ops.extractall" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes path to zipped file and extracts it to specified output path
-:param zip_path: path to zipped file
-:type zip_path: str or pathlib.Path
-:param out_path: path where contents will be unzipped to
-:type out_path: str or pathlib.Path
-:param delete_zip: option to delete zip file after extracted
-:type delete_zip: Boolean</p>
+<dd><p>Takes path to zipped file and extracts it to specified output path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zip_path</strong> (<em>str</em><em> or </em><em>pathlib.Path</em>) – path to zipped file</p></li>
+<li><p><strong>out_path</strong> (<em>str</em><em> or </em><em>pathlib.Path</em>) – path where contents will be unzipped to</p></li>
+<li><p><strong>delete_zip</strong> (<em>Boolean</em>) – option to delete zip file after extracted</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -97,13 +81,12 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/Nesta_Logo_Red_RGB.png" alt="Logo"/>
+              <img class="logo" src="_static/Nesta_Logo_Blue_RGB.png" alt="Logo"/>
             </a></p>
   <div>
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">file_ops</a><ul>
-<li><a class="reference internal" href="#file_ops._convert_str_to_pathlib_path"><code class="docutils literal notranslate"><span class="pre">_convert_str_to_pathlib_path()</span></code></a></li>
 <li><a class="reference internal" href="#file_ops.make_path_if_not_exist"><code class="docutils literal notranslate"><span class="pre">make_path_if_not_exist()</span></code></a></li>
 <li><a class="reference internal" href="#file_ops.extractall"><code class="docutils literal notranslate"><span class="pre">extractall()</span></code></a></li>
 </ul>
@@ -118,8 +101,8 @@
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="test_file_ops.html"
-                          title="next chapter">test_file_ops</a></p>
+    <p class="topless"><a href="data_manipulation.html"
+                          title="next chapter">data_manipulation</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -149,7 +132,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="test_file_ops.html" title="test_file_ops"
+          <a href="data_manipulation.html" title="data_manipulation"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to nesta_ds_utils’s documentation!"
