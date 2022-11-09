@@ -23,7 +23,8 @@ jobs:
           cd ..
       - name: Push changes to working branch
         run: |
-          git remote set-url push origin
+          git remote set-url --push origin
+          git remote set-url --add origin
           git status
           git add -f docs/*
           git commit -m "auto updating docs"
