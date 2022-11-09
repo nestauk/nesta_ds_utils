@@ -34,6 +34,6 @@ jobs:
           git diff-index --quiet HEAD || git commit -m "auto updating docs"
       - name: Push changes
         uses: ad-m/github-push-action@master
-        with:
-          ssh: true
-          branch: ${{ github.ref }}
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
