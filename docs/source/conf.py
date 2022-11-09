@@ -36,17 +36,17 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "classic"
+html_theme = "nature"
 html_static_path = ["_static"]
-html_logo = "_static/Nesta_Logo_Red_RGB.png"
-html_theme_options = {
-    "relbarbgcolor": "#18A48C",
-    "bodyfont": "averta",
-    "headfont": "averta",
-    "sidebarbgcolor": "#0000FF",
-    "footerbgcolor": "#9A1BBE",
-    "textcolor": "#0F294A",
-    "linkcolor": "0F294A",
-    "headtextcolor": "#0F294A",
-    "sidebarwidth": 400,
-}
+html_logo = "_static/Nesta_Logo_Blue_RGB.png"
+# html_theme_options = {
+#   "headingcolor": "#0000FF"
+#    "bodyfont": "averta",
+#    "headfont": "averta",
+#    "sidebarbgcolor": "#0000FF",
+#    "footerbgcolor": "#9A1BBE",
+#    "textcolor": "#0F294A",
+#    "linkcolor": "0F294A",
+#    "headtextcolor": "#0F294A",
+#    "sidebarwidth": 400,
+# }

@@ -7,15 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>file_ops &#8212; nesta_ds_utils 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
-    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
   </head><body>
@@ -46,7 +44,7 @@
 
 
 <span class="k">def</span> <span class="nf">_convert_str_to_pathlib_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Converts a path written as a string to pathlib format</span>
+    <span class="sd">&quot;&quot;&quot;Converts a path written as a string to pathlib format.</span>
 
 <span class="sd">    :param path: file path in string format</span>
 <span class="sd">    :type path: str or pathlib.path</span>
@@ -57,7 +55,7 @@
 
 
 <div class="viewcode-block" id="make_path_if_not_exist"><a class="viewcode-back" href="../file_ops.html#file_ops.make_path_if_not_exist">[docs]</a><span class="k">def</span> <span class="nf">make_path_if_not_exist</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;Check if path exists, if it does not exist then create it</span>
+    <span class="sd">&quot;&quot;&quot;Check if path exists, if it does not exist then create it.</span>
 
 <span class="sd">    :param path: file path </span>
 <span class="sd">    :type path: pathlib.Path or str</span>
@@ -67,8 +65,12 @@
         <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="extractall"><a class="viewcode-back" href="../file_ops.html#file_ops.extractall">[docs]</a><span class="k">def</span> <span class="nf">extractall</span><span class="p">(</span><span class="n">zip_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">out_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delete_zip</span><span class="p">:</span> <span class="n">Boolean</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Takes path to zipped file and extracts it to specified output path</span>
+<div class="viewcode-block" id="extractall"><a class="viewcode-back" href="../file_ops.html#file_ops.extractall">[docs]</a><span class="k">def</span> <span class="nf">extractall</span><span class="p">(</span>
+    <span class="n">zip_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
+    <span class="n">out_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="n">delete_zip</span><span class="p">:</span> <span class="n">Boolean</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes path to zipped file and extracts it to specified output path.</span>
+<span class="sd">    </span>
 <span class="sd">    :param zip_path: path to zipped file</span>
 <span class="sd">    :type zip_path: str or pathlib.Path</span>
 <span class="sd">    :param out_path: path where contents will be unzipped to</span>
@@ -95,7 +97,7 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/Nesta_Logo_Red_RGB.png" alt="Logo"/>
+              <img class="logo" src="../_static/Nesta_Logo_Blue_RGB.png" alt="Logo"/>
             </a></p>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
