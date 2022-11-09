@@ -21,10 +21,18 @@ jobs:
           cd docs
           make html
           cd ..
+      - uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          persist-credentials: true
       - name: Push changes to working branch
         run: |
           git remote set-url origin ${{ secrets.ssh }}
           git status
           git add -f docs/*
           git commit -m "auto updating docs"
-          git push
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          ssh: true
+          branch: ${{ github.ref }}
