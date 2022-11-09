@@ -31,7 +31,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git status
           git add -f docs/*
-          git commit -m "auto updating docs"
+          git diff-index --quiet HEAD || git commit -m "auto updating docs"
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
