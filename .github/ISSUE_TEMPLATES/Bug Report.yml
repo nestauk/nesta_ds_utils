@@ -16,7 +16,7 @@ body:
     id: reproducing
     attributes:
       label: Instructions to Reproduce the Bug
-      description: What were the steps you ran that resulted in the bug? Include code snippets if possible.
+      description: What were the steps you ran that resulted in the bug? Include code snippets or shell commands if possible.
       placeholder: Tell us what you see!
       value: "A bug happened!"
     validations:
