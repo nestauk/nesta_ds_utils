@@ -1,0 +1,28 @@
+name: Feature Request
+description: Request a new feature for `nesta_ds_utils`
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: checkboxes
+    id: slack
+    attributes:
+      label: Slack Post
+      description: By submitting this issue, you acknowledge that you have suggested this feature in the Slack channel ['nesta_ds_utils'](https://nesta.slack.com/app_redirect?channel=nesta_ds_utils) and it has been discusssed
+      options:
+        - label: The team agrees on the need for this feature
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Feature
+      description: What would you like this feature to do?
+      placeholder: Tell us what you need!
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Examples of this Feature
+      description: If possible, link to a function in an existing project, module, script etc.
+    validations:
+      required: false
