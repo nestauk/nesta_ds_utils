@@ -14,13 +14,12 @@ Include:
 - A small code snippit to reproduce the bug (if possible)
 - If an error or exception is raised include the full traceback
 
-Once you have submitted the issue, post in the [#dev channel](https://nesta.slack.com/app_redirect?channel=dev) with the Issue number so
-people are aware of the bug and can address it asap. If the bug is resolved via Slack (i.e. it is not a bug in the package code)
+Once you have submitted the issue, post in the [#nesta_ds_utils channel](https://nesta.slack.com/app_redirect?channel=nesta_ds_utils) with the Issue number so people are aware of the bug and can address it asap. If the bug is resolved via Slack (i.e. it is not a bug in the package code)
 please remember to delete the Issue.
 
 ### Suggesting a Feature:
 
-First post in the [#dev channel](https://nesta.slack.com/app_redirect?channel=dev) to begin discussion of the feature. A good feature
+First post in the [#nesta_ds_utils channel](https://nesta.slack.com/app_redirect?channel=nesta_ds_utils) to begin discussion of the feature. A good feature
 for the `nesta_ds_utils` package is:
 
 - General enough that it can be used across projects
