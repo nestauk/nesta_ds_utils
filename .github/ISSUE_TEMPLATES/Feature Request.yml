@@ -23,6 +23,6 @@ body:
     id: example
     attributes:
       label: Examples of this Feature
-      description: If possible, link to a function in an existing project, module, script etc.
+      description: If possible, link to a function in an existing Nesta project.
     validations:
       required: false
