@@ -20,7 +20,7 @@ def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
 def make_path_if_not_exist(path: Union[Path, str]):
     """Check if path exists, if it does not exist then create it.
 
-    :param path: file path 
+    :param path: file path
     :type path: pathlib.Path or str
     """
     path = _convert_str_to_pathlib_path(path)
@@ -29,11 +29,12 @@ def make_path_if_not_exist(path: Union[Path, str]):
 
 
 def extractall(
-    zip_path: Union[Path, str], 
-    out_path: Union[Path, str]=None, 
-    delete_zip: Boolean = True):
+    zip_path: Union[Path, str],
+    out_path: Union[Path, str] = None,
+    delete_zip: Boolean = True,
+):
     """Takes path to zipped file and extracts it to specified output path.
-    
+
     :param zip_path: path to zipped file
     :type zip_path: str or pathlib.Path
     :param out_path: path where contents will be unzipped to
@@ -48,6 +49,6 @@ def extractall(
     make_path_if_not_exist(out_path)
     with zipfile.ZipFile(zip_path, "r") as z:
         z.extractall(out_path)
-    
+
     if delete_zip is True:
         os.remove(zip_path)
