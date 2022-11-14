@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>formatting &#8212; nesta_ds_utils 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../index.html">nesta_ds_utils 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">formatting</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for formatting</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module containing utils for styling and exporting figures using Altair.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">altair</span> <span class="k">as</span> <span class="nn">alt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">font_manager</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+
+<span class="k">def</span> <span class="nf">_find_averta</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Search for averta font, otherwise return &#39;Helvetica&#39; and raise a warning.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Return averta installation name, if found. Return &#39;Helvetica&#39; otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">font</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">font_path</span> <span class="ow">in</span> <span class="n">font_manager</span><span class="o">.</span><span class="n">findSystemFonts</span><span class="p">(</span><span class="n">fontext</span><span class="o">=</span><span class="s2">&quot;ttf&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;Averta&quot;</span> <span class="ow">in</span> <span class="n">font_path</span><span class="p">:</span>
+            <span class="n">font</span> <span class="o">=</span> <span class="s2">&quot;Averta&quot;</span>
+            <span class="k">break</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">font</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Averta font could not be located. Using &#39;Helvetica&#39; instead&quot;</span><span class="p">)</span>
+        <span class="n">font</span> <span class="o">=</span> <span class="s2">&quot;Helvetica&quot;</span>
+    <span class="k">return</span> <span class="n">font</span>
+
+
+<span class="k">def</span> <span class="nf">_load_nesta_theme</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Define Nesta&#39;s styling theme using format expected by altair.&quot;&quot;&quot;</span>
+    <span class="n">font</span> <span class="o">=</span> <span class="n">_find_averta</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;nesta_ds_utils/viz/themes/nesta_theme_&quot;</span> <span class="o">+</span> <span class="n">font</span> <span class="o">+</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<div class="viewcode-block" id="setup_theme"><a class="viewcode-back" href="../formatting.html#formatting.setup_theme">[docs]</a><span class="k">def</span> <span class="nf">setup_theme</span><span class="p">(</span><span class="n">theme_name</span><span class="o">=</span><span class="s2">&quot;nesta&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enable a theme for an altair figure. Currently only supports nesta theme.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        theme_name (str, optional): Theme to load. Defaults to &#39;nesta&#39;. Currently only acceptable value is &#39;nesta&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">theme_name</span> <span class="o">==</span> <span class="s2">&quot;nesta&quot;</span><span class="p">:</span>
+        <span class="n">alt</span><span class="o">.</span><span class="n">themes</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">&quot;nesta_theme&quot;</span><span class="p">,</span> <span class="n">_load_nesta_theme</span><span class="p">)</span>
+        <span class="n">alt</span><span class="o">.</span><span class="n">themes</span><span class="o">.</span><span class="n">enable</span><span class="p">(</span><span class="s2">&quot;nesta_theme&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Invalid theme name. Currently only supports nesta theme.&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/Nesta_Logo_Blue_RGB.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../index.html">nesta_ds_utils 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">formatting</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, DAP.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.3.
+    </div>
+  </body>
+</html>
