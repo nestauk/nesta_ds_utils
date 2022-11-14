@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import sys
 import pytest
-from nesta_ds_utils import file_ops
+from nesta_ds_utils.loading_saving import file_ops
 
 
 @pytest.fixture
