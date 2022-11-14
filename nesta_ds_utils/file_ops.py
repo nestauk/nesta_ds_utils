@@ -8,6 +8,11 @@ import boto3
 from fnmatch import fnmatch
 import pandas as pd
 import numpy as np
+import pyarrow as pa
+import pyarrow.parquet as pq
+import json
+import pickle
+from dicttoxml import dicttoxml
 
 
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
@@ -68,41 +73,183 @@ def get_bucket_filenames_s3(bucket_name: str, dir_name: str = "") -> List[str]:
         List[str]: List of file names in bucket directory.
     """
     s3_resources = boto3.resource("s3")
-    my_bucket = s3_resources.Bucket(bucket_name)
+    bucket = s3_resources.Bucket(bucket_name)
     return [
-        object_summary.key
-        for object_summary in my_bucket.objects.filter(Prefix=dir_name)
+        object_summary.key for object_summary in bucket.objects.filter(Prefix=dir_name)
     ]
 
 
-def _df_to_fileobj(df: pd.DataFrame, save_file_dir: str) -> io.BytesIO:
+def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
     """Convert DataFrame into bytes file object.
 
     Args:
         df (pd.DataFrame): Dataframe to convert.
-        save_file_dir (str): Saving file name.
+        path_to (str): Saving file name.
 
     Returns:
         io.BytesIO: Bytes file object.
     """
     buffer = io.BytesIO()
-    if fnmatch(save_file_dir, "*.csv"):
-        df.to_csv(buffer)
-    elif fnmatch(save_file_dir, "*.json"):
-        df.to_json(buffer)
-    elif fnmatch(save_file_dir, "*.pkl"):
-        df.to_pickle(buffer)
-    elif fnmatch(save_file_dir, "*.xml"):
-        df.to_xml(buffer)
+    if fnmatch(path_to, "*.csv"):
+        df_data.to_csv(buffer, **kwargs)
+    elif fnmatch(path_to, "*.parquet"):
+        df_data.to_.parquet(buffer, **kwargs)
     else:
         raise Exception(
-            "Automatic convertion from pd.DataFrame currently supported only for 'csv', 'json', 'pkl' and 'xml'."
+            "Uploading dataframe currently supported only for 'csv' and 'parquet'."
         )
     buffer.seek(0)
     return buffer
 
 
-def _fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
+def _dict_to_fileobj(dict_data: dict, path_to: str, **kwargs) -> io.BytesIO:
+    """Convert dictionary into bytes file object.
+
+    Args:
+        dict_data (dict): Dictionary to convert.
+        path_to (str): Saving file name.
+
+    Returns:
+        io.BytesIO: Bytes file object.
+    """
+    buffer = io.BytesIO()
+    if fnmatch(path_to, "*.json"):
+        buffer.write(json.dumps(dict_data, **kwargs).encode())
+    elif fnmatch(path_to, ".xml"):
+        buffer.write(dicttoxml(dict_data, **kwargs))
+    else:
+        raise Exception(
+            "Uploading dictionary currently supported only for 'json' and 'xml'."
+        )
+    buffer.seek(0)
+    return buffer
+
+
+def _list_to_fileobj(list_data: list, path_to: str, **kwargs) -> io.BytesIO:
+    """Convert list into bytes file object.
+
+    Args:
+        list_data (list): List to convert.
+        path_to (str): Saving file name.
+
+    Returns:
+        io.BytesIO: Bytes file object.
+    """
+    buffer = io.BytesIO()
+    if fnmatch(path_to, "*.csv"):
+        pd.DataFrame(list_data).to_csv(buffer, **kwargs)
+    elif fnmatch(path_to, ".txt"):
+        for row in list_data:
+            buffer.write(bytes(str(row) + "\n", "utf-8"))
+    elif fnmatch(path_to, ".json"):
+        buffer.write(json.dumps(dict_data, **kwargs).encode())
+    else:
+        raise Exception(
+            "Uploading list currently supported only for 'csv', 'txt' and 'json'."
+        )
+    buffer.seek(0)
+    return buffer
+
+
+def _str_to_fileobj(str_data: str, path_to: str, **kwargs) -> io.BytesIO:
+    """Convert str into bytes file object.
+
+    Args:
+        str_data (str): String to convert.
+        path_to (str): Saving file name.
+
+    Returns:
+        io.BytesIO: Bytes file object.
+    """
+    if fnmatch(path_to, "*.txt"):
+        buffer = io.BytesIO(bytes(str_data.encode("utf-8")))
+    else:
+        raise Exception("Uploading string currently supported only for 'txt'.")
+    buffer.seek(0)
+    return buffer
+
+
+def _np_array_to_fileobj(
+    np_array_data: np.ndarray, path_to: str, **kwargs
+) -> io.BytesIO:
+    """Convert numpy array into bytes file object.
+
+    Args:
+        np_array_data (str): Numpy array to convert.
+        path_to (str): Saving file name.
+
+    Returns:
+        io.BytesIO: Bytes file object.
+    """
+    buffer = io.BytesIO()
+    if fnmatch(path_to, "*.csv"):
+        np.savetxt(buffer, np_array_data, delimiter=",", **kwargs)
+    elif fnmatch(path_to, "*.parquet"):
+        pq.write_table(pa.table({"data": np_array_data}), buffer, **kwargs)
+    else:
+        raise Exception(
+            "Uploading numpy array currently supported only for 'csv' and 'parquet."
+        )
+    buffer.seek(0)
+    return buffer
+
+
+def _unsupp_data_to_fileobj(data: any, path_to: str, **kwargs) -> io.BytesIO:
+    """Convert data into bytes file object using pickle file type.
+
+    Args:
+        data (any): Data to convert.
+        path_to (str): Saving file name.
+
+    Returns:
+        io.BytesIO: Bytes file object.
+    """
+    buffer = io.BytesIO()
+    if fnmatch(path_to, "*.pkl"):
+        pickle.dump(data, buffer, **kwargs)
+    else:
+        raise Exception(
+            "This file type is not supported for this data. Use 'pkl' instead."
+        )
+    buffer.seek(0)
+    return buffer
+
+
+def upload_obj(
+    obj: any,
+    bucket: str,
+    path_to: str,
+    kwargs_upload: dict = None,
+    kwargs_writing: dict = None,
+):
+    """Uploads data from memory to S3 location.
+
+    Args:
+        obj (any): Data to upload.
+        bucket (str): Bucket's name.
+        path_to (str): Path location to save data.
+        kwargs_upload (dict, optional): Dictionary of kwargs for boto3 function 'upload_fileobj'.
+        kwargs_writing (dict, optional): Dictionary of kwargs for writing data.
+
+    """
+    if isinstance(obj, pd.DataFrame):
+        obj = _df_to_fileobj(obj, path_to, **kwargs_writing)
+    elif isinstance(obj, dict):
+        obj = _dict_to_fileobj(obj, path_to, **kwargs_writing)
+    elif isinstance(obj, list):
+        obj = _list_to_fileobj(obj, path_to, **kwargs_writing)
+    elif isinstance(obj, str):
+        obj = _str_to_fileobj(obj, path_to, **kwargs_writing)
+    elif isinstance(obj, np.ndarray):
+        obj = _np_array_to_fileobj(obj, path_to, **kwargs_writing)
+    else:
+        obj = _unsupp_data_to_fileobj(obj, path_to, **kwargs_writing)
+
+    s3 = boto3.client("s3")
+    s3.upload_fileobj(obj, bucket, path_to, **kwargs_upload)
+
+
+def _fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str, **kwargs) -> pd.DataFrame:
     """Convert bytes file object into DataFrame.
 
     Args:
@@ -113,40 +260,15 @@ def _fileobj_to_df(fileobj: io.BytesIO, load_file_dir: str) -> pd.DataFrame:
         pd.DataFrame: Dataframe converted
     """
     if fnmatch(load_file_dir, "*.csv"):
-        df = pd.read_csv(fileobj)
-    elif fnmatch(load_file_dir, "*.json"):
-        df = pd.read_json(fileobj)
-    elif fnmatch(load_file_dir, "*.pkl"):
-        df = pd.read_pickle(fileobj)
-    elif fnmatch(load_file_dir, "*.xml"):
-        df = pd.read_xml(fileobj)
+        df = pd.read_csv(fileobj, **kwargs)
+    elif fnmatch(load_file_dir, "*.parquet"):
+        df = pd.read_parquet(fileobj, **kwargs)
     else:
         raise Exception(
-            "Automatic convertion into pd.DataFrame currently supported only for 'csv', 'json', 'pkl' and 'xml'."
+            "Automatic convertion into pd.DataFrame currently supported "
+            "only for 'csv'and 'parquet'."
         )
     return df
-
-
-def upload_obj(
-    obj: Union[io.BytesIO, pd.DataFrame], bucket: str, file_name_to: str, **kwargs
-):
-    """Uploads data from memory to S3 location.
-
-    Args:
-        obj (Union[io.BytesIO, pd.DataFrame]): Data to upload.
-        bucket (str): Bucket's name.
-        file_name_to (str): Path location to save data.
-
-    Raises:
-        Exception: Util supports data only as "io.BytesIO" or "pd.DataFrame".
-    """
-    s3 = boto3.client("s3")
-    if isinstance(obj, pd.DataFrame):
-        obj = _df_to_fileobj(obj, file_name_to)
-    if isinstance(obj, io.BytesIO):
-        s3.upload_fileobj(obj, bucket, file_name_to, kwargs)
-    else:
-        raise Exception('Util supports data only as "io.BytesIO" or "pd.DataFrame".')
 
 
 def download_obj(
@@ -165,9 +287,9 @@ def download_obj(
     """
     s3 = boto3.client("s3")
     fileobj = io.BytesIO()
-    s3.download_fileobj(bucket, file_name_from, fileobj, kwargs)
+    s3.download_fileobj(bucket, file_name_from, fileobj)
     fileobj.seek(0)
-    return _fileobj_to_df(fileobj, file_name_from) if asDataFrame else fileobj
+    return _fileobj_to_df(fileobj, file_name_from, **kwargs) if asDataFrame else fileobj
 
 
 def upload_file(file_name_from: str, bucket: str, file_name_to: str, **kwargs):

@@ -116,30 +116,6 @@ def test_fileobj_to_df_csv():
     )
 
 
-def test_fileobj_to_df_json():
-    """Tests that _fileobj_to_df returns a pd.DataFrame with file type 'json'."""
-    buffer = io.BytesIO()
-    pd.DataFrame({"c": [0]}).to_json(buffer)
-    buffer.seek(0)
-    assert isinstance(file_ops._fileobj_to_df(buffer, "dummy.json"), pd.DataFrame)
-
-
-def test_fileobj_to_df_pkl():
-    """Tests that _fileobj_to_df returns a pd.DataFrame with file type 'pkl'."""
-    buffer = io.BytesIO()
-    pd.DataFrame({"c": [0]}).to_pickle(buffer)
-    buffer.seek(0)
-    assert isinstance(file_ops._fileobj_to_df(buffer, "dummy.pkl"), pd.DataFrame)
-
-
-def test_fileobj_to_df_xml():
-    """Tests that _fileobj_to_df returns a pd.DataFrame with file type 'xml'."""
-    buffer = io.BytesIO()
-    pd.DataFrame({"c": [0]}).to_xml(buffer)
-    buffer.seek(0)
-    assert isinstance(file_ops._fileobj_to_df(buffer, "dummy.xml"), pd.DataFrame)
-
-
 def test_df_to_fileobj_exception():
     """Tests that _df_to_fileobj rasies an Exception for unsupported file type."""
     with pytest.raises(Exception):
@@ -149,28 +125,17 @@ def test_df_to_fileobj_exception():
 def test_df_to_fileobj_csv():
     """Tests that _df_to_fileobj returns a io.BytesIO with file type 'csv'."""
     assert isinstance(
-        file_ops._df_to_fileobj(pd.DataFrame({"c": [0]}), "dummy.csv"), io.BytesIO
+        file_ops._df_to_fileobj(
+            pd.DataFrame({"c": [0]}), "dummy.csv", **{"header": True}
+        ),
+        io.BytesIO,
     )
 
 
-def test_df_to_fileobj_json():
-    """Tests that _df_to_fileobj returns a io.BytesIO with file type 'json'."""
+def test_dict_to_fileobj_json():
+    """Tests that _dict_to_fileobj returns a io.BytesIO with file type 'json'."""
     assert isinstance(
-        file_ops._df_to_fileobj(pd.DataFrame({"c": [0]}), "dummy.json"), io.BytesIO
-    )
-
-
-def test_df_to_fileobj_pkl():
-    """Tests that _df_to_fileobj returns a io.BytesIO with file type 'pkl'."""
-    assert isinstance(
-        file_ops._df_to_fileobj(pd.DataFrame({"c": [0]}), "dummy.pkl"), io.BytesIO
-    )
-
-
-def test_df_to_fileobj_xml():
-    """Tests that _df_to_fileobj returns a io.BytesIO with file type 'xml'."""
-    assert isinstance(
-        file_ops._df_to_fileobj(pd.DataFrame({"c": [0]}), "dummy.xml"), io.BytesIO
+        file_ops._dict_to_fileobj({"c": [0]}, "dummy.json", **{"indent": 4}), io.BytesIO
     )
 
 
