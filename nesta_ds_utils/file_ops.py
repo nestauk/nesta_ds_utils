@@ -13,6 +13,7 @@ import pyarrow.parquet as pq
 import json
 import pickle
 from dicttoxml import dicttoxml
+import warnings
 
 
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
@@ -244,6 +245,10 @@ def upload_obj(
         obj = _np_array_to_fileobj(obj, path_to, **kwargs_writing)
     else:
         obj = _unsupp_data_to_fileobj(obj, path_to, **kwargs_writing)
+        warnings.warn(
+            "Data uploaded using pickle. Please consider other accessible "
+            "file types among the suppoted ones."
+        )
 
     s3 = boto3.client("s3")
     s3.upload_fileobj(obj, bucket, path_to, **kwargs_upload)
