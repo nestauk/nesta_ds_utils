@@ -133,17 +133,6 @@ def test_upload_obj_dict_json():
 
 
 @mock_s3
-def test_upload_obj_dict_xml():
-    """Tests that upload_obj does not return an exeption
-    uploading dictionary as xml.
-    """
-    conn = boto3.resource("s3", region_name="us-east-1")
-    conn.create_bucket(Bucket="test-bucket")
-    s3 = boto3.client("s3")
-    file_ops.upload_obj(TEST_DICT, "test-bucket", "dummy.xml")
-
-
-@mock_s3
 def test_upload_obj_list_csv():
     """Tests that upload_obj does not return an exeption
     uploading list as csv.
@@ -274,23 +263,6 @@ def test_dowload_obj_dict_json():
 
 
 @mock_s3
-def test_dowload_obj_dict_xml():
-    """Tests that download_obj returns the correct dictionary
-    from xml file.
-    """
-    conn = boto3.resource("s3", region_name="us-east-1")
-    conn.create_bucket(Bucket="test-bucket")
-    s3 = boto3.client("s3")
-    s3.upload_file("tests/artifacts/dummy_dict.xml", "test-bucket", "dummy.xml")
-    assert (
-        file_ops.download_obj("test-bucket", "dummy.xml", download_as="dict")["test"][
-            "item"
-        ][0]
-        == "0"
-    )
-
-
-@mock_s3
 def test_dowload_obj_list_csv():
     """Tests that download_obj returns the correct list
     from csv file.
@@ -382,7 +354,7 @@ def test_dowload_obj_array_parquet():
 
 
 @mock_s3
-def test_dowload_obj_unsupp_data():
+def test_dowload_obj_unsup_data():
     """Tests that download_obj returns the correct integer
     from pkl file.
     """
