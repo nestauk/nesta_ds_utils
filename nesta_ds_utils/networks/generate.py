@@ -7,6 +7,8 @@ from itertools import chain, combinations
 import networkx as nx
 from nltk.tokenize import word_tokenize
 
+nltk.download("punkt")
+
 
 def term_cooccurrence_graph(
     sequences: Union[List[list], List[np.array], List[str]],
