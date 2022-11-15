@@ -95,7 +95,7 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
     if fnmatch(path_to, "*.csv"):
         df_data.to_csv(buffer, **kwargs)
     elif fnmatch(path_to, "*.parquet"):
-        df_data.to_.parquet(buffer, **kwargs)
+        df_data.to_parquet(buffer, **kwargs)
     else:
         raise Exception(
             "Uploading dataframe currently supported only for 'csv' and 'parquet'."
@@ -117,7 +117,7 @@ def _dict_to_fileobj(dict_data: dict, path_to: str, **kwargs) -> io.BytesIO:
     buffer = io.BytesIO()
     if fnmatch(path_to, "*.json"):
         buffer.write(json.dumps(dict_data, **kwargs).encode())
-    elif fnmatch(path_to, ".xml"):
+    elif fnmatch(path_to, "*.xml"):
         buffer.write(dicttoxml(dict_data, attr_type=False, **kwargs))
     else:
         raise Exception(
@@ -140,10 +140,10 @@ def _list_to_fileobj(list_data: list, path_to: str, **kwargs) -> io.BytesIO:
     buffer = io.BytesIO()
     if fnmatch(path_to, "*.csv"):
         pd.DataFrame(list_data).to_csv(buffer, **kwargs)
-    elif fnmatch(path_to, ".txt"):
+    elif fnmatch(path_to, "*.txt"):
         for row in list_data:
             buffer.write(bytes(str(row) + "\n", "utf-8"))
-    elif fnmatch(path_to, ".json"):
+    elif fnmatch(path_to, "*.json"):
         buffer.write(json.dumps(list_data, **kwargs).encode())
     else:
         raise Exception(
@@ -221,8 +221,8 @@ def upload_obj(
     obj: any,
     bucket: str,
     path_to: str,
-    kwargs_upload: dict = None,
-    kwargs_writing: dict = None,
+    kwargs_upload: dict = {},
+    kwargs_writing: dict = {},
 ):
     """Uploads data from memory to S3 location.
 
@@ -344,8 +344,8 @@ def download_obj(
     bucket: str,
     path_from: str,
     download_as: str = None,
-    kwargs_download: dict = None,
-    kwargs_reading: dict = None,
+    kwargs_download: dict = {},
+    kwargs_reading: dict = {},
 ) -> any:
     """Download data to memory from S3 location.
 
