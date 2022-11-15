@@ -33,7 +33,7 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 
 ## Developing a Feature or Addressing a Bug
 
-1. Post in the [#dev channel](https://nesta.slack.com/app_redirect?channel=dev) with the Issue number you plan to address
+1. Post in the [#nesta_ds_utils channel](https://nesta.slack.com/app_redirect?channel=nesta_ds_utils) with the Issue number you plan to address
 2. Clone the repository (we typically use the SSH protocol)
 3. Create and activate a conda environment with python >= 3.8
 4. cd into the top level `nesta_ds_utils` directory
