@@ -12,8 +12,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import json
 import pickle
-from dicttoxml import dicttoxml
-import xmltodict
 import warnings
 
 
@@ -117,12 +115,8 @@ def _dict_to_fileobj(dict_data: dict, path_to: str, **kwargs) -> io.BytesIO:
     buffer = io.BytesIO()
     if fnmatch(path_to, "*.json"):
         buffer.write(json.dumps(dict_data, **kwargs).encode())
-    elif fnmatch(path_to, "*.xml"):
-        buffer.write(dicttoxml(dict_data, attr_type=False, **kwargs))
     else:
-        raise Exception(
-            "Uploading dictionary currently supported only for 'json' and 'xml'."
-        )
+        raise Exception("Uploading dictionary currently supported only for 'json'.")
     buffer.seek(0)
     return buffer
 
@@ -281,12 +275,7 @@ def _fileobj_to_dict(fileobj: io.BytesIO, path_from: str, **kwargs) -> dict:
     Returns:
         dict: Data as dictionary.
     """
-    if fnmatch(path_from, "*.json"):
-        dict_data = json.loads(fileobj.getvalue().decode(), **kwargs)
-    elif fnmatch(path_from, "*.xml"):
-        dict_data = xmltodict.parse(fileobj.getvalue(), **kwargs)["root"]
-
-    return dict_data
+    return json.loads(fileobj.getvalue().decode(), **kwargs)
 
 
 def _fileobj_to_list(fileobj: io.BytesIO, path_from: str, **kwargs) -> list:
@@ -361,9 +350,7 @@ def download_obj(
     Returns:
         any: Donwloaded data.
     """
-    if not path_from.endswith(
-        tuple([".csv", ".parquet", ".json", ".xml", ".txt", ".pkl"])
-    ):
+    if not path_from.endswith(tuple([".csv", ".parquet", ".json", ".txt", ".pkl"])):
         raise Exception(
             "This file type is not currently supported for download in memory."
         )
@@ -380,12 +367,11 @@ def download_obj(
                 "for 'csv' and 'parquet'."
             )
     elif download_as == "dict":
-        if path_from.endswith(tuple([".json", ".xml"])):
+        if path_from.endswith(tuple([".json"])):
             return _fileobj_to_dict(fileobj, path_from, **kwargs_reading)
         else:
             raise Exception(
-                "Download as dictionary currently supported only "
-                "for 'json' and 'xml'."
+                "Download as dictionary currently supported only " "for 'json'."
             )
     elif download_as == "list":
         if path_from.endswith(tuple([".csv", ".txt", ".json"])):

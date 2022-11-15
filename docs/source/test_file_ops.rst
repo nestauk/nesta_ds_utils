@@ -17,31 +17,47 @@ test_file_ops
 
 .. autofunction:: test_file_ops.test_get_bucket_filenames_s3
 
-.. autofunction:: test_file_ops.test_upload_obj_exception
+.. autofunction:: test_upload_obj_dataframe_csv
 
-.. autofunction:: test_file_ops.test_fileobj_to_df_exception
+.. autofunction:: test_upload_obj_dataframe_parquet
 
-.. autofunction:: test_file_ops.test_fileobj_to_df_csv
+.. autofunction:: test_upload_obj_dict_json
 
-.. autofunction:: test_file_ops.test_fileobj_to_df_json
+.. autofunction:: test_upload_obj_list_csv
 
-.. autofunction:: test_file_ops.test_fileobj_to_df_pkl
+.. autofunction:: test_upload_obj_list_txt
 
-.. autofunction:: test_file_ops.test_fileobj_to_df_xml
+.. autofunction:: test_upload_obj_list_json
 
-.. autofunction:: test_file_ops.test_df_to_fileobj_exception
+.. autofunction:: test_upload_obj_str_txt
 
-.. autofunction:: test_file_ops.test_df_to_fileobj_csv
+.. autofunction:: test_upload_obj_array_csv
 
-.. autofunction:: test_file_ops.test_df_to_fileobj_json
+.. autofunction:: test_upload_obj_array_parquet
 
-.. autofunction:: test_file_ops.test_df_to_fileobj_pkl
+.. autofunction:: test_upload_obj_unsup_data
 
-.. autofunction:: test_file_ops.test_df_to_fileobj_xml
+.. autofunction:: test_dowload_obj_dataframe_csv
 
-.. autofunction:: test_file_ops.test_download_obj_fieobj
+.. autofunction:: test_dowload_obj_dataframe_parquet
 
-.. autofunction:: test_file_ops.test_download_obj_dataframe
+.. autofunction:: test_dowload_obj_dict_json
+
+.. autofunction:: test_dowload_obj_list_csv
+
+.. autofunction:: test_dowload_obj_list_txt
+
+.. autofunction:: test_dowload_obj_list_json
+
+.. autofunction:: test_dowload_obj_str_txt
+
+.. autofunction:: test_dowload_obj_array_csv
+
+.. autofunction:: test_dowload_obj_array_parquet
+
+.. autofunction:: test_dowload_obj_unsup_data
+
+.. autofunction:: test_dowload_obj_exeption
 
 .. autofunction:: test_file_ops.test_download_file
 
