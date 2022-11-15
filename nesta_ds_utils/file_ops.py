@@ -401,7 +401,7 @@ def download_obj(
             raise Exception("'download_as' is required for this file type.")
     else:
         raise Exception(
-            "'download_as' not supported. Choose between ('dataframe', "
+            "'download_as' not provided. Choose between ('dataframe', "
             "'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.'"
         )
 
