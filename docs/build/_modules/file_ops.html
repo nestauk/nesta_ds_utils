@@ -57,7 +57,7 @@
 <div class="viewcode-block" id="make_path_if_not_exist"><a class="viewcode-back" href="../file_ops.html#file_ops.make_path_if_not_exist">[docs]</a><span class="k">def</span> <span class="nf">make_path_if_not_exist</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;Check if path exists, if it does not exist then create it.</span>
 
-<span class="sd">    :param path: file path </span>
+<span class="sd">    :param path: file path</span>
 <span class="sd">    :type path: pathlib.Path or str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_convert_str_to_pathlib_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -66,11 +66,12 @@
 
 
 <div class="viewcode-block" id="extractall"><a class="viewcode-back" href="../file_ops.html#file_ops.extractall">[docs]</a><span class="k">def</span> <span class="nf">extractall</span><span class="p">(</span>
-    <span class="n">zip_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> 
-    <span class="n">out_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-    <span class="n">delete_zip</span><span class="p">:</span> <span class="n">Boolean</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="n">zip_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">out_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">delete_zip</span><span class="p">:</span> <span class="n">Boolean</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Takes path to zipped file and extracts it to specified output path.</span>
-<span class="sd">    </span>
+
 <span class="sd">    :param zip_path: path to zipped file</span>
 <span class="sd">    :type zip_path: str or pathlib.Path</span>
 <span class="sd">    :param out_path: path where contents will be unzipped to</span>
@@ -85,7 +86,7 @@
     <span class="n">make_path_if_not_exist</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">z</span><span class="p">:</span>
         <span class="n">z</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">out_path</span><span class="p">)</span>
-    
+
     <span class="k">if</span> <span class="n">delete_zip</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">zip_path</span><span class="p">)</span></div>
 </pre></div>

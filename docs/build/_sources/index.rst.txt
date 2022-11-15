@@ -14,28 +14,17 @@ Welcome to nesta_ds_utils's documentation!
 Utility Functions
 ==================
 .. toctree::
-   file_ops
-   :maxdepth: 3
+   cleaning
+   :maxdepth: 4
 .. toctree::
-   data_manipulation
-   :maxdepth: 3
+   loading_saving
+   :maxdepth: 4
 .. toctree::
-   plotting
-   :maxdepth: 3
-
-Tests
-==================
+   networks
+   :maxdepth: 4
 .. toctree::
-   test_file_ops
-   :maxdepth: 3
-.. toctree::
-   test_data_manipulation
-   :maxdepth: 3
-.. toctree::
-   test_plotting
-   :maxdepth: 3
-
-
+   viz
+   :maxdepth: 4
 
 
 
