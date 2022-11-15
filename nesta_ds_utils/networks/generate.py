@@ -5,6 +5,7 @@ from typing import Union, List
 from collections import Counter, defaultdict
 from itertools import chain, combinations
 import networkx as nx
+import nltk
 from nltk.tokenize import word_tokenize
 
 nltk.download("punkt")
