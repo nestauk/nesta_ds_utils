@@ -1,0 +1,13 @@
+
+file_ops
+========
+**file_ops** contains a variety of AWS S3 related operations commonly used by the DAP team
+
+
+.. autofunction:: file_ops.upload_obj
+
+.. autofunction:: file_ops.download_obj
+
+.. autofunction:: file_ops.upload_file
+
+.. autofunction:: file_ops.download_file
