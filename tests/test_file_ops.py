@@ -349,7 +349,7 @@ def test_dowload_obj_str_txt():
     s3 = boto3.client("s3")
     s3.upload_file("tests/artifacts/dummy_str.txt", "test-bucket", "dummy.txt")
     assert (
-        file_ops.download_obj("test-bucket", "dummy.txt", download_as="str") == "test"
+        file_ops.download_obj("test-bucket", "dummy.txt", download_as="str") == "test\n"
     )
 
 
