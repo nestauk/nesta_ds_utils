@@ -46,6 +46,36 @@
   <section id="generate">
 <h1>generate<a class="headerlink" href="#generate" title="Permalink to this heading">¶</a></h1>
 <p><strong>generate</strong> contains functions to create networks</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="nesta_ds_utils.networks.generate.term_cooccurrence_graph">
+<span class="sig-prename descclassname"><span class="pre">nesta_ds_utils.networks.generate.</span></span><span class="sig-name descname"><span class="pre">term_cooccurrence_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">array</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'networkx'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weighted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopwords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowercase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span></span></span><a class="reference internal" href="_modules/nesta_ds_utils/networks/generate.html#term_cooccurrence_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nesta_ds_utils.networks.generate.term_cooccurrence_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>generates a co-occurence graph based on pairwise co-occurence of terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sequences</strong> (<em>Union</em><em>[</em><em>List</em><em>[</em><em>list</em><em>]</em><em>, </em><em>List</em><em>[</em><em>np.array</em><em>]</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – list of term lists, list of numpy arrays containing terms, or list of strings.</p></li>
+<li><p><strong>graph_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Python library to use for network generation.
+Currently only supports ‘networkx’ but future development should support ‘graph-tool’</p></li>
+<li><p><strong>weighted</strong> (<em>bool</em><em>, </em><em>optional</em>) – parameter to indicate of edges should be weighted. Defaults to True.
+If True, edge weights represent number of co-occurences.</p></li>
+<li><p><strong>directed</strong> (<em>bool</em><em>, </em><em>optional</em>) – parameter to indicate if edges should be directed. Defaults to False.
+If True, edge directions are determined based on order of tokens. CURRENTLY NOT SUPPORTED.</p></li>
+<li><p><strong>stopwords</strong> (<em>list</em><em>, </em><em>optional</em>) – list of stopwords tokens to exclude from vertices. Defaults to [].</p></li>
+<li><p><strong>lowercase</strong> (<em>bool</em><em>, </em><em>optional</em>) – parameter to indicate if tokens should be lowercase. Defaults to True.
+If True, all tokens are lowercased.
+If False, tokens are treated as different nodes based on capitalization.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.
+Currently only supports undirected.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nx.Graph</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -58,6 +88,16 @@
             <p class="logo"><a href="index.html">
               <img class="logo" src="_static/Nesta_Logo_Blue_RGB.png" alt="Logo"/>
             </a></p>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">generate</a><ul>
+<li><a class="reference internal" href="#nesta_ds_utils.networks.generate.term_cooccurrence_graph"><code class="docutils literal notranslate"><span class="pre">term_cooccurrence_graph()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
   <div>
     <h4>Previous topic</h4>
     <p class="topless"><a href="networks.html"

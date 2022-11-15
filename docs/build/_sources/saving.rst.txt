@@ -2,4 +2,4 @@ saving
 ===============
 **saving** contains altair saving functions
 
-.. autofunction:: saving.save
+.. autofunction:: nesta_ds_utils.viz.altair.saving.save
