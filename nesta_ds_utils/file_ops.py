@@ -85,7 +85,7 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
     """Convert DataFrame into bytes file object.
 
     Args:
-        df (pd.DataFrame): Dataframe to convert.
+        df_data (pd.DataFrame): Dataframe to convert.
         path_to (str): Saving file name.
 
     Returns:
@@ -177,7 +177,7 @@ def _np_array_to_fileobj(
     """Convert numpy array into bytes file object.
 
     Args:
-        np_array_data (str): Numpy array to convert.
+        np_array_data (np.ndarray): Numpy array to convert.
         path_to (str): Saving file name.
 
     Returns:
@@ -221,7 +221,7 @@ def upload_obj(
     obj: any,
     bucket: str,
     path_to: str,
-    kwargs_upload: dict = {},
+    kwargs_boto: dict = {},
     kwargs_writing: dict = {},
 ):
     """Uploads data from memory to S3 location.
@@ -230,7 +230,7 @@ def upload_obj(
         obj (any): Data to upload.
         bucket (str): Bucket's name.
         path_to (str): Path location to save data.
-        kwargs_upload (dict, optional): Dictionary of kwargs for boto3 function 'upload_fileobj'.
+        kwargs_boto (dict, optional): Dictionary of kwargs for boto3 function 'upload_fileobj'.
         kwargs_writing (dict, optional): Dictionary of kwargs for writing data.
 
     """
@@ -252,7 +252,7 @@ def upload_obj(
         )
 
     s3 = boto3.client("s3")
-    s3.upload_fileobj(obj, bucket, path_to, **kwargs_upload)
+    s3.upload_fileobj(obj, bucket, path_to, **kwargs_boto)
 
 
 def _fileobj_to_df(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFrame:
@@ -344,7 +344,7 @@ def download_obj(
     bucket: str,
     path_from: str,
     download_as: str = None,
-    kwargs_download: dict = {},
+    kwargs_boto: dict = {},
     kwargs_reading: dict = {},
 ) -> any:
     """Download data to memory from S3 location.
@@ -354,7 +354,7 @@ def download_obj(
         path_from (str): Path to data in S3.
         download_as (str, optional): Type of object downloading. Choose between
         ('dataframe', 'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.
-        kwargs_download (dict, optional): Dictionary of kwargs for boto3 function 'download_fileobj'.
+        kwargs_boto (dict, optional): Dictionary of kwargs for boto3 function 'download_fileobj'.
         kwargs_reading (dict, optional): Dictionary of kwargs for reading data.
 
     Returns:
@@ -368,7 +368,7 @@ def download_obj(
         )
     s3 = boto3.client("s3")
     fileobj = io.BytesIO()
-    s3.download_fileobj(bucket, path_from, fileobj, **kwargs_download)
+    s3.download_fileobj(bucket, path_from, fileobj, **kwargs_boto)
     fileobj.seek(0)
     if download_as == "dataframe":
         if path_from.endswith(tuple([".csv", ".parquet"])):
