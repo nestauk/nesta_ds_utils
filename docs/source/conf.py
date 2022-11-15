@@ -4,8 +4,9 @@ import sys
 sys.path.insert(1, "../../nesta_ds_utils/loading_saving")
 sys.path.insert(1, "../../nesta_ds_utils/cleaning")
 sys.path.insert(1, "../../nesta_ds_utils/viz/altair")
+sys.path.insert(1, "../../nesta_ds_utils/networks")
 
-import file_ops, datetime_ops, saving, formatting
+import file_ops, datetime_ops, saving, formatting, generate
 
 # Configuration file for the Sphinx documentation builder.
 #

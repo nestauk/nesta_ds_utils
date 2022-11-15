@@ -14,10 +14,13 @@ Welcome to nesta_ds_utils's documentation!
 Utility Functions
 ==================
 .. toctree::
+   cleaning
+   :maxdepth: 4
+.. toctree::
    loading_saving
    :maxdepth: 4
 .. toctree::
-   cleaning
+   networks
    :maxdepth: 4
 .. toctree::
    viz
