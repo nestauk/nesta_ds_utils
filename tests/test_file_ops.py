@@ -107,7 +107,9 @@ def test_get_bucket_filenames_s3():
 
 @mock_s3
 def test_upload_obj_dataframe_csv():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading dataframe as csv.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -116,7 +118,9 @@ def test_upload_obj_dataframe_csv():
 
 @mock_s3
 def test_upload_obj_dataframe_parquet():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading dataframe as parquet.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -134,7 +138,9 @@ def test_upload_obj_dict_json():
 
 @mock_s3
 def test_upload_obj_dict_xml():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading dictionary as xml.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -143,7 +149,9 @@ def test_upload_obj_dict_xml():
 
 @mock_s3
 def test_upload_obj_list_csv():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading list as csv.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -152,7 +160,9 @@ def test_upload_obj_list_csv():
 
 @mock_s3
 def test_upload_obj_list_txt():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading list as txt.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -161,7 +171,9 @@ def test_upload_obj_list_txt():
 
 @mock_s3
 def test_upload_obj_list_json():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading list as json.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -169,8 +181,10 @@ def test_upload_obj_list_json():
 
 
 @mock_s3
-def test_upload_obj_list_txt():
-    """Tests that upload_obj does not return an exeption."""
+def test_upload_obj_str_txt():
+    """Tests that upload_obj does not return an exeption
+    uploading string as txt.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -179,7 +193,9 @@ def test_upload_obj_list_txt():
 
 @mock_s3
 def test_upload_obj_array_csv():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading numpy array as csv.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -188,7 +204,9 @@ def test_upload_obj_array_csv():
 
 @mock_s3
 def test_upload_obj_array_parquet():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading numpy array as parquet.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
@@ -197,73 +215,196 @@ def test_upload_obj_array_parquet():
 
 @mock_s3
 def test_upload_obj_unsup_data():
-    """Tests that upload_obj does not return an exeption."""
+    """Tests that upload_obj does not return an exeption
+    uploading unsupported data as pkl.
+    """
     conn = boto3.resource("s3", region_name="us-east-1")
     conn.create_bucket(Bucket="test-bucket")
     s3 = boto3.client("s3")
     file_ops.upload_obj(0, "test-bucket", "dummy.pkl")
 
 
-# @mock_s3
-# def test_upload_obj_exception():
-#     """Tests that upload_obj rasies an Exception for unsupported file type."""
-#     conn = boto3.resource("s3", region_name="us-east-1")
-#     conn.create_bucket(Bucket="mybucket")
-#     with pytest.raises(Exception):
-#         file_ops.upload_obj(0, "mybucket", "dummy.csv")
+@mock_s3
+def test_dowload_obj_dataframe_csv():
+    """Tests that download_obj returns the correct dataframe
+    from csv file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_dataframe.csv", "test-bucket", "dummy.csv")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.csv", download_as="dataframe").test[
+            0
+        ]
+        == 0
+    )
 
 
-# def test_fileobj_to_df_csv():
-#     """Tests that _fileobj_to_df returns a pd.DataFrame with file type 'csv'."""
-#     assert isinstance(
-#         file_ops._fileobj_to_df(io.BytesIO(b"Test"), "dummy.csv"), pd.DataFrame
-#     )
+@mock_s3
+def test_dowload_obj_dataframe_parquet():
+    """Tests that download_obj returns the correct dataframe
+    from parquet file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file(
+        "tests/artifacts/dummy_dataframe.parquet", "test-bucket", "dummy.parquet"
+    )
+    assert (
+        file_ops.download_obj(
+            "test-bucket", "dummy.parquet", download_as="dataframe"
+        ).test[0]
+        == 0
+    )
 
 
-# def test_df_to_fileobj_exception():
-#     """Tests that _df_to_fileobj rasies an Exception for unsupported file type."""
-#     with pytest.raises(Exception):
-#         file_ops._df_to_fileobj(pd.DataFrame(), "dummy.txt")
+@mock_s3
+def test_dowload_obj_dict_json():
+    """Tests that download_obj returns the correct dictionary
+    from json file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_dict.json", "test-bucket", "dummy.json")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.json", download_as="dict")["test"][
+            0
+        ]
+        == 0
+    )
 
 
-# def test_df_to_fileobj_csv():
-#     """Tests that _df_to_fileobj returns a io.BytesIO with file type 'csv'."""
-#     assert isinstance(
-#         file_ops._df_to_fileobj(
-#             pd.DataFrame({"c": [0]}), "dummy.csv", **{"header": True}
-#         ),
-#         io.BytesIO,
-#     )
+@mock_s3
+def test_dowload_obj_dict_xml():
+    """Tests that download_obj returns the correct dictionary
+    from xml file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_dict.xml", "test-bucket", "dummy.xml")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.xml", download_as="dict")["test"][
+            "item"
+        ][0]
+        == "0"
+    )
 
 
-# def test_dict_to_fileobj_json():
-#     """Tests that _dict_to_fileobj returns a io.BytesIO with file type 'json'."""
-#     assert isinstance(
-#         file_ops._dict_to_fileobj({"c": [0]}, "dummy.json"), io.BytesIO
-#     )
+@mock_s3
+def test_dowload_obj_list_csv():
+    """Tests that download_obj returns the correct list
+    from csv file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_list.csv", "test-bucket", "dummy.csv")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.csv", download_as="list")[0] == "0"
+    )
 
 
-# @mock_s3
-# def test_download_obj_fieobj():
-#     """Tests that download_obj returns a bytes file object."""
-#     conn = boto3.resource("s3", region_name="us-east-1")
-#     conn.create_bucket(Bucket="test-bucket")
-#     s3 = boto3.client("s3")
-#     s3.upload_fileobj(io.BytesIO(b"Test"), "test-bucket", "dummy.csv")
-#     assert isinstance(file_ops.download_obj("test-bucket", "dummy.csv"), io.BytesIO)
+@mock_s3
+def test_dowload_obj_list_txt():
+    """Tests that download_obj returns the correct list
+    from txt file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_list.txt", "test-bucket", "dummy.txt")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.txt", download_as="list")[0] == "0"
+    )
 
 
-# @mock_s3
-# def test_download_obj_dataframe():
-#     """Tests that download_obj returns a pandas pd.DataFrame."""
-#     conn = boto3.resource("s3", region_name="us-east-1")
-#     conn.create_bucket(Bucket="test-bucket")
-#     s3 = boto3.client("s3")
-#     s3.upload_fileobj(io.BytesIO(b"Test"), "test-bucket", "dummy.csv")
-#     assert isinstance(
-#         file_ops.download_obj("test-bucket", "dummy.csv", download_as='dataframe'),
-#         pd.DataFrame,
-#     )
+@mock_s3
+def test_dowload_obj_list_json():
+    """Tests that download_obj returns the correct dataframe
+    from json file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_list.json", "test-bucket", "dummy.json")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.json", download_as="list")[0][
+            "test"
+        ][0]
+        == 0
+    )
+
+
+@mock_s3
+def test_dowload_obj_str_txt():
+    """Tests that download_obj returns the correct string
+    from txt file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_str.txt", "test-bucket", "dummy.txt")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.txt", download_as="str") == "test"
+    )
+
+
+@mock_s3
+def test_dowload_obj_array_csv():
+    """Tests that download_obj returns the correct numpy array
+    from csv file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_array.csv", "test-bucket", "dummy.csv")
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.csv", download_as="np.array")[0]
+        == 0
+    )
+
+
+@mock_s3
+def test_dowload_obj_array_parquet():
+    """Tests that download_obj returns the correct numpy array
+    from parquet file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file(
+        "tests/artifacts/dummy_array.parquet", "test-bucket", "dummy.parquet"
+    )
+    assert (
+        file_ops.download_obj("test-bucket", "dummy.parquet", download_as="np.array")[0]
+        == 0
+    )
+
+
+@mock_s3
+def test_dowload_obj_unsupp_data():
+    """Tests that download_obj returns the correct integer
+    from pkl file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    s3.upload_file("tests/artifacts/dummy_unsupp.pkl", "test-bucket", "dummy.pkl")
+    assert file_ops.download_obj("test-bucket", "dummy.pkl") == 0
+
+
+@mock_s3
+def test_dowload_obj_exeption():
+    """Tests that download_obj returns an exception for unsupported file type."""
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    s3 = boto3.client("s3")
+    with pytest.raises(Exception):
+        file_ops.download_obj("test-bucket", "dummy.html")
 
 
 @mock_s3
