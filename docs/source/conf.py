@@ -5,7 +5,6 @@ sys.path.insert(1, "../../nesta_ds_utils")
 sys.path.insert(1, "../../tests")
 import data_manipulation, test_data_manipulation, plotting, test_plotting
 from nesta_ds_utils.loading_saving import file_ops, S3
-from tests.loading_saving import test_file_ops
 
 # Configuration file for the Sphinx documentation builder.
 #
