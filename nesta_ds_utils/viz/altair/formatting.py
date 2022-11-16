@@ -30,7 +30,8 @@ def _find_averta() -> str:
 def _load_nesta_theme() -> dict:
     """Define Nesta's styling theme using format expected by altair."""
     font = _find_averta()
-    with open("nesta_ds_utils/viz/themes/nesta_theme_" + font + ".yaml", "r") as stream:
+    theme_dir = os.path.join(os.path.dirname(os.path.split(__file__)[0]), "themes")
+    with open(theme_dir + "/nesta_theme_" + font + ".yaml", "r") as stream:
         config = yaml.safe_load(stream)
     return config
 
