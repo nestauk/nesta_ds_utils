@@ -1,5 +1,8 @@
 name: Build Documentation
-on: [push]
+on:
+  push:
+    branches:
+      - dev
 jobs:
   docs:
     runs-on: ubuntu-latest
@@ -29,6 +32,7 @@ jobs:
           git reset -- docs/build/doctrees/environment.pickle
           git reset -- docs/build/doctrees/.DS_Store
           git diff-index --quiet HEAD || git commit -m "auto updating docs"
+          git rebase -x theirs dev
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
