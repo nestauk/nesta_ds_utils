@@ -3,7 +3,10 @@ import os
 from pathlib import Path
 import sys
 import pytest
-from nesta_ds_utils import file_ops
+from typing import List
+
+sys.path.insert(1, "nesta_ds_utils/")
+from nesta_ds_utils.loading_saving import file_ops
 
 
 @pytest.fixture
@@ -11,7 +14,7 @@ def test_output_path():
     """Generates pathlib.Path to dump intermediate test data.
 
     Yields:
-        Output path to dump intermetiate test data
+        Output path to dump intermetiate test data.
     """
     test_output_path = file_ops._convert_str_to_pathlib_path("tests/temp/")
     file_ops.make_path_if_not_exist(test_output_path)
@@ -20,7 +23,7 @@ def test_output_path():
 
 
 def test_convert_str_to_pathlib_path(test_output_path: Path):
-    """Tests that file_ops method convert_str_to_pathlib_path
+    """Tests that file_ops method convert_str_to_pathlib_path.
         returns type patlib.Path.
 
     Args:
@@ -34,7 +37,7 @@ def test_path_exists(test_output_path: Path):
         make_path_if_not_exist exists.
 
     Args:
-        test_output_path (pathlib.Path): output path to dump intermetiate test data
+        test_output_path (pathlib.Path): Output path to dump intermetiate test data.
     """
     assert test_output_path.exists()
 
@@ -44,7 +47,7 @@ def test_extract_zip_to_output_path(test_output_path: Path):
         text file to an output path and that text file could be read.
 
     Args:
-        test_output_path (pathlib.Path): output path to dump intermetiate test data
+        test_output_path (pathlib.Path): Output path to dump intermetiate test data.
     """
     file_ops.extractall(
         "tests/artifacts/dummy_zip.zip", test_output_path, delete_zip=False

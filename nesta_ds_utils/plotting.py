@@ -14,7 +14,7 @@ from typing import Union, List, Type
 import warnings
 from matplotlib import font_manager
 from pathlib import Path
-from nesta_ds_utils import file_ops
+from nesta_ds_utils.loading_saving import file_ops
 import yaml
 
 
