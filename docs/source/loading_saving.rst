@@ -8,3 +8,6 @@ loading_saving
 .. toctree::
    file_ops
    :maxdepth: 2
+.. toctree::
+   S3
+   :maxdepth: 2
