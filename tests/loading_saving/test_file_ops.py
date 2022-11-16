@@ -3,9 +3,6 @@ import os
 from pathlib import Path
 import sys
 import pytest
-from typing import List
-
-sys.path.insert(1, "nesta_ds_utils/")
 from nesta_ds_utils.loading_saving import file_ops
 
 
