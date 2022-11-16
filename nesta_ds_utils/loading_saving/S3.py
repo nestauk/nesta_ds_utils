@@ -280,7 +280,6 @@ def _fileobj_to_np_array(fileobj: io.BytesIO, path_from: str, **kwargs) -> np.nd
 
     return np_array_data
 
-    obj = S3.Object(bucket_name, output_file_dir)
 
 def download_obj(
     bucket: str,
