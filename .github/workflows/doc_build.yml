@@ -18,7 +18,9 @@ jobs:
           pip install -e ."[dev]"
       - name: Make documentation
         run: |
-          sphinx-build -b html docs/source docs/build
+          cd docs
+          make html
+          cd ..
         # - uses: actions/checkout@v3
         #   with:
         #     ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
