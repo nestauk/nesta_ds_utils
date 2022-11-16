@@ -43,7 +43,7 @@
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
 
 
-<div class="viewcode-block" id="_convert_str_to_pathlib_path"><a class="viewcode-back" href="../../../file_ops.html#nesta_ds_utils.loading_saving.file_ops._convert_str_to_pathlib_path">[docs]</a><span class="k">def</span> <span class="nf">_convert_str_to_pathlib_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_convert_str_to_pathlib_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Converts a path written as a string to pathlib format.</span>
 
 <span class="sd">    Args:</span>
@@ -52,7 +52,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        Path: Path in pathlib format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="k">else</span> <span class="n">path</span></div>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span> <span class="k">else</span> <span class="n">path</span>
 
 
 <div class="viewcode-block" id="make_path_if_not_exist"><a class="viewcode-back" href="../../../file_ops.html#nesta_ds_utils.loading_saving.file_ops.make_path_if_not_exist">[docs]</a><span class="k">def</span> <span class="nf">make_path_if_not_exist</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
