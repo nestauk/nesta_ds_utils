@@ -1,10 +1,8 @@
 import os
 import sys
 
-sys.path.insert(1, "../..")
-
+from nesta_ds_utils.loading_saving import file_ops, S3
 from nesta_ds_utils.cleaning import datetime_ops
-from nesta_ds_utils.loading_saving import file_ops
 from nesta_ds_utils.viz.altair import saving, formatting
 from nesta_ds_utils.networks import generate
 
