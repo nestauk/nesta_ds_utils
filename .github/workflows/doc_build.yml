@@ -24,7 +24,7 @@ jobs:
           cd docs
           make html
           cd ..
-      - name: Push changes to working branch
+      - name: Commit changes to working branch
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
