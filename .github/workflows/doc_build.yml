@@ -31,7 +31,6 @@ jobs:
           git status
           git add -f docs/build/*
           git diff-index --quiet HEAD || git commit -m "auto updating docs"
-          git rebase -x theirs dev
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
