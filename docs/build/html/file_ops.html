@@ -17,8 +17,8 @@
     <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="data_manipulation" href="data_manipulation.html" />
-    <link rel="prev" title="Welcome to nesta_ds_utils’s documentation!" href="index.html" /> 
+    <link rel="next" title="S3" href="S3.html" />
+    <link rel="prev" title="loading_saving" href="loading_saving.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -27,12 +27,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="data_manipulation.html" title="data_manipulation"
+          <a href="S3.html" title="S3"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to nesta_ds_utils’s documentation!"
+          <a href="loading_saving.html" title="loading_saving"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">nesta_ds_utils 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="loading_saving.html" accesskey="U">loading_saving</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">file_ops</a></li> 
       </ul>
     </div>  
@@ -46,26 +47,26 @@
 <h1>file_ops<a class="headerlink" href="#file-ops" title="Permalink to this heading">¶</a></h1>
 <p><strong>file_ops</strong> contains a variety of file related operations commonly used by the DAP team</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="file_ops.make_path_if_not_exist">
-<span class="sig-prename descclassname"><span class="pre">file_ops.</span></span><span class="sig-name descname"><span class="pre">make_path_if_not_exist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/file_ops.html#make_path_if_not_exist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#file_ops.make_path_if_not_exist" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nesta_ds_utils.loading_saving.file_ops.make_path_if_not_exist">
+<span class="sig-prename descclassname"><span class="pre">nesta_ds_utils.loading_saving.file_ops.</span></span><span class="sig-name descname"><span class="pre">make_path_if_not_exist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/nesta_ds_utils/loading_saving/file_ops.html#make_path_if_not_exist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nesta_ds_utils.loading_saving.file_ops.make_path_if_not_exist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if path exists, if it does not exist then create it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>pathlib.Path</em><em> or </em><em>str</em>) – file path</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em>) – File path.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="file_ops.extractall">
-<span class="sig-prename descclassname"><span class="pre">file_ops.</span></span><span class="sig-name descname"><span class="pre">extractall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_zip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/file_ops.html#extractall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#file_ops.extractall" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="nesta_ds_utils.loading_saving.file_ops.extractall">
+<span class="sig-prename descclassname"><span class="pre">nesta_ds_utils.loading_saving.file_ops.</span></span><span class="sig-name descname"><span class="pre">extractall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_zip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/nesta_ds_utils/loading_saving/file_ops.html#extractall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nesta_ds_utils.loading_saving.file_ops.extractall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes path to zipped file and extracts it to specified output path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>zip_path</strong> (<em>str</em><em> or </em><em>pathlib.Path</em>) – path to zipped file</p></li>
-<li><p><strong>out_path</strong> (<em>str</em><em> or </em><em>pathlib.Path</em>) – path where contents will be unzipped to</p></li>
-<li><p><strong>delete_zip</strong> (<em>Boolean</em>) – option to delete zip file after extracted</p></li>
+<li><p><strong>zip_path</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em>) – Path to zipped file.</p></li>
+<li><p><strong>out_path</strong> (<em>Union</em><em>[</em><em>Path</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Path where contents will be unzipped to. Defaults to None.</p></li>
+<li><p><strong>delete_zip</strong> (<em>Boolean</em><em>, </em><em>optional</em>) – Option to delete zip file after extracted. Defaults to True.</p></li>
 </ul>
 </dd>
 </dl>
@@ -87,8 +88,8 @@
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">file_ops</a><ul>
-<li><a class="reference internal" href="#file_ops.make_path_if_not_exist"><code class="docutils literal notranslate"><span class="pre">make_path_if_not_exist()</span></code></a></li>
-<li><a class="reference internal" href="#file_ops.extractall"><code class="docutils literal notranslate"><span class="pre">extractall()</span></code></a></li>
+<li><a class="reference internal" href="#nesta_ds_utils.loading_saving.file_ops.make_path_if_not_exist"><code class="docutils literal notranslate"><span class="pre">make_path_if_not_exist()</span></code></a></li>
+<li><a class="reference internal" href="#nesta_ds_utils.loading_saving.file_ops.extractall"><code class="docutils literal notranslate"><span class="pre">extractall()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -96,13 +97,13 @@
   </div>
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="index.html"
-                          title="previous chapter">Welcome to nesta_ds_utils’s documentation!</a></p>
+    <p class="topless"><a href="loading_saving.html"
+                          title="previous chapter">loading_saving</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="data_manipulation.html"
-                          title="next chapter">data_manipulation</a></p>
+    <p class="topless"><a href="S3.html"
+                          title="next chapter">S3</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -132,12 +133,13 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="data_manipulation.html" title="data_manipulation"
+          <a href="S3.html" title="S3"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to nesta_ds_utils’s documentation!"
+          <a href="loading_saving.html" title="loading_saving"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">nesta_ds_utils 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="loading_saving.html" >loading_saving</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">file_ops</a></li> 
       </ul>
     </div>
