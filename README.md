@@ -4,7 +4,7 @@ A Python package with basic utility functions for data science projects at Nesta
 
 ### Installation and requirements ⬇️
 
-The package requires Python 3.8, or higher. To install the package run:
+The package requires Python 3.8, or higher. To install the package run:  
 `pip install git+https://github.com/nestauk/nesta_ds_utils.git `
 
 ### How to use 📚
