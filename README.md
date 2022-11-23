@@ -9,8 +9,8 @@ The package requires Python 3.8, or higher. To install the package run:
 
 ### How to use 📚
 
-You can import the package, or any spcific modules (ex. `viz`), in Python with:
-`import nesta_ds_utils` or `from nesta_ds_utils import viz`
+You can import the package, or any spcific modules (ex. `viz`), in Python with:  
+`import nesta_ds_utils` or `from nesta_ds_utils.viz.altair import saving`
 
 For a full list of the existing modules and functionality check the [Documentation](https://nestauk.github.io/nesta_ds_utils/build/html/index.html). You can also check out a basic [tutorial](https://github.com/nestauk/dap_tutorials/tree/main/nesta_ds_utils_demo).
 
