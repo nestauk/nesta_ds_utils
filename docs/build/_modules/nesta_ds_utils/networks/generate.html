@@ -89,6 +89,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">network</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
+    <span class="c1"># if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph</span>
     <span class="k">if</span> <span class="n">as_adj</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
 
@@ -97,17 +98,15 @@
 
 
 <span class="k">def</span> <span class="nf">_cooccurrence_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;cooccurrence_counts</span>
-<span class="sd">    Counts the cooccurring pairs from a nested sequence.</span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    sequences : :obj:`iter` of :obj:`iter`</span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    :obj:`collections.Counter`</span>
+    <span class="sd">&quot;&quot;&quot;counts the pairs of cooccuring tokens in a sequence</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        sequences (list): list of lists or arrays containing tokens</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: key: pair of tokens, value: count of co-occurrence</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">combos</span> <span class="o">=</span> <span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sequence</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">)</span>
+    <span class="n">combos</span> <span class="o">=</span> <span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sequence</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">combos</span><span class="p">))</span>
 </pre></div>
 
