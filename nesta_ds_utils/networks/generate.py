@@ -52,6 +52,7 @@ def build_coocc(
         else:
             network.add_edge(key[0], key[1])
 
+    # if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph
     if as_adj:
         return nx.adjacency_matrix(network)
 
@@ -60,15 +61,13 @@ def build_coocc(
 
 
 def _cooccurrence_counts(sequences):
-    """cooccurrence_counts
-    Counts the cooccurring pairs from a nested sequence.
-    Parameters
-    ----------
-    sequences : :obj:`iter` of :obj:`iter`
-    Returns
-    -------
-    :obj:`collections.Counter`
+    """counts the pairs of cooccuring tokens in a sequence
 
+    Args:
+        sequences (list): list of lists or arrays containing tokens
+
+    Returns:
+        dict: key: pair of tokens, value: count of co-occurrence
     """
-    combos = (combinations(sorted(sequence), 2) for sequence in sequences)
+    combos = (combinations(sorted(set(sequence)), 2) for sequence in sequences)
     return Counter(chain(*combos))
