@@ -8,7 +8,7 @@ import networkx as nx
 import scipy as sp
 
 
-def build_cooccurrence_graph(
+def build_coocc(
     sequences: Union[List[list], List[np.array]],
     graph_type: str = "networkx",
     weighted: bool = True,
@@ -53,41 +53,6 @@ def build_cooccurrence_graph(
             network.add_edge(key[0], key[1])
 
     return network
-
-
-def _clean_tokens(
-    sequences: Union[List[list], List[np.array]], lowercase: bool, stopwords: bool
-) -> List[list]:
-    """clean tokens based on parameters passed to network generation function
-
-    Args:
-        sequences (Union[List[list], List[np.array]]): list of term lists, list of numpy arrays containing terms, or list of strings.
-        lowercase (bool): parameter to indicate if tokens should be lowercase.
-        stopwords (bool): list of stopwords to tokens to exclude from vertices.
-
-    Returns:
-        List[list]: sequences with modified tokens
-    """
-    # if there are stopwords and lowercase is true remove stopwords and lowercase in one iteration
-    if len(stopwords) > 0 and lowercase:
-        stopwords = [word.lower() for word in stopwords]
-        return [
-            [item.lower() for item in sublist if item.lower() not in stopwords]
-            for sublist in sequences
-        ]
-
-    # if lowercase is false, but there are stopwords only remove stopwords
-    elif len(stopwords) > 0 and not lowercase:
-        return [
-            [item for item in sublist if item not in stopwords] for sublist in sequences
-        ]
-
-    # if lowercase is true, but there are no stopwords only lowercase tokens
-    elif lowercase and len(stopwords) == 0:
-        return [[item.lower() for item in sublist] for sublist in sequences]
-
-    else:
-        return sequences
 
 
 def _cooccurrence_counts(sequences):
