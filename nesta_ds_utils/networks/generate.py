@@ -5,7 +5,7 @@ from typing import Union, List
 from collections import Counter, defaultdict
 from itertools import chain, combinations
 import networkx as nx
-import scipy as sp
+import scipy
 
 
 def build_coocc(
@@ -14,7 +14,7 @@ def build_coocc(
     weighted: bool = True,
     directed: bool = False,
     as_adj: bool = False,
-) -> Union[nx.Graph, sp.sparse]:
+) -> Union[nx.Graph, scipy.sparse._csr.csr_matrix]:
     """generates a co-occurence graph based on pairwise co-occurence of terms.
 
     Args:
@@ -52,7 +52,11 @@ def build_coocc(
         else:
             network.add_edge(key[0], key[1])
 
-    return network
+    if as_adj:
+        return nx.adjacency_matrix(network)
+
+    else:
+        return network
 
 
 def _cooccurrence_counts(sequences):
