@@ -5,35 +5,29 @@ from typing import Union, List
 from collections import Counter, defaultdict
 from itertools import chain, combinations
 import networkx as nx
-import nltk
-from nltk.tokenize import word_tokenize
-
-nltk.download("punkt")
+import scipy as sp
 
 
-def term_cooccurrence_graph(
-    sequences: Union[List[list], List[np.array], List[str]],
+def build_cooccurrence_graph(
+    sequences: Union[List[list], List[np.array]],
     graph_type: str = "networkx",
     weighted: bool = True,
     directed: bool = False,
-    stopwords: list = [],
-    lowercase: bool = True,
-) -> nx.Graph:
+    as_adj: bool = False,
+) -> Union[nx.Graph, sp.sparse]:
     """generates a co-occurence graph based on pairwise co-occurence of terms.
 
     Args:
-        sequences (Union[List[list], List[np.array], List[str]]):
-            list of term lists, list of numpy arrays containing terms, or list of strings.
+        sequences (Union[List[list], List[np.array]]):
+            list of lists or list of numpy arrays containing tokens to use as nodes in the network.
         graph_type (str, optional): Python library to use for network generation.
             Currently only supports 'networkx' but future development should support 'graph-tool'
         weighted (bool, optional): parameter to indicate of edges should be weighted. Defaults to True.
             If True, edge weights represent number of co-occurences.
         directed (bool, optional): parameter to indicate if edges should be directed. Defaults to False.
             If True, edge directions are determined based on order of tokens. CURRENTLY NOT SUPPORTED.
-        stopwords (list, optional): list of stopwords tokens to exclude from vertices. Defaults to [].
-        lowercase (bool, optional): parameter to indicate if tokens should be lowercase. Defaults to True.
-            If True, all tokens are lowercased.
-            If False, tokens are treated as different nodes based on capitalization.
+        as_adj (bool, optional): parameter to indicate if network should be returned as an adjacency matrix
+            rather than a Graph object.
 
     Returns:
         nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.
@@ -45,13 +39,6 @@ def term_cooccurrence_graph(
         )
 
     network = nx.Graph()
-
-    # if list of strings is passed, use nltk to split into word tokens
-    if type(sequences[0]) == str:
-        sequences = [word_tokenize(item) for item in sequences]
-
-    # clean the tokens in the sequences based on parameters passed
-    sequences = _clean_tokens(sequences, lowercase, stopwords)
 
     # nodes will be all unique tokens in the corpus
     nodes = set(itertools.chain(*sequences))
