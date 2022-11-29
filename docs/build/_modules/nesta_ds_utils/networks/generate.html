@@ -42,35 +42,29 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">combinations</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
-<span class="kn">import</span> <span class="nn">nltk</span>
-<span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">word_tokenize</span>
-
-<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;punkt&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
 
 
-<div class="viewcode-block" id="term_cooccurrence_graph"><a class="viewcode-back" href="../../../generate.html#nesta_ds_utils.networks.generate.term_cooccurrence_graph">[docs]</a><span class="k">def</span> <span class="nf">term_cooccurrence_graph</span><span class="p">(</span>
-    <span class="n">sequences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+<div class="viewcode-block" id="build_coocc"><a class="viewcode-back" href="../../../generate.html#nesta_ds_utils.networks.generate.build_coocc">[docs]</a><span class="k">def</span> <span class="nf">build_coocc</span><span class="p">(</span>
+    <span class="n">sequences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]],</span>
     <span class="n">graph_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;networkx&quot;</span><span class="p">,</span>
     <span class="n">weighted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">directed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">stopwords</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
-    <span class="n">lowercase</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">:</span>
+    <span class="n">as_adj</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">_csr</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;generates a co-occurence graph based on pairwise co-occurence of terms.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        sequences (Union[List[list], List[np.array], List[str]]):</span>
-<span class="sd">            list of term lists, list of numpy arrays containing terms, or list of strings.</span>
+<span class="sd">        sequences (Union[List[list], List[np.array]]):</span>
+<span class="sd">            list of lists or list of numpy arrays containing tokens to use as nodes in the network.</span>
 <span class="sd">        graph_type (str, optional): Python library to use for network generation.</span>
 <span class="sd">            Currently only supports &#39;networkx&#39; but future development should support &#39;graph-tool&#39;</span>
 <span class="sd">        weighted (bool, optional): parameter to indicate of edges should be weighted. Defaults to True.</span>
 <span class="sd">            If True, edge weights represent number of co-occurences.</span>
 <span class="sd">        directed (bool, optional): parameter to indicate if edges should be directed. Defaults to False.</span>
 <span class="sd">            If True, edge directions are determined based on order of tokens. CURRENTLY NOT SUPPORTED.</span>
-<span class="sd">        stopwords (list, optional): list of stopwords tokens to exclude from vertices. Defaults to [].</span>
-<span class="sd">        lowercase (bool, optional): parameter to indicate if tokens should be lowercase. Defaults to True.</span>
-<span class="sd">            If True, all tokens are lowercased.</span>
-<span class="sd">            If False, tokens are treated as different nodes based on capitalization.</span>
+<span class="sd">        as_adj (bool, optional): parameter to indicate if network should be returned as an adjacency matrix</span>
+<span class="sd">            rather than a Graph object.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.</span>
@@ -82,13 +76,6 @@
         <span class="p">)</span>
 
     <span class="n">network</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
-
-    <span class="c1"># if list of strings is passed, use nltk to split into word tokens</span>
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sequences</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">sequences</span> <span class="o">=</span> <span class="p">[</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">]</span>
-
-    <span class="c1"># clean the tokens in the sequences based on parameters passed</span>
-    <span class="n">sequences</span> <span class="o">=</span> <span class="n">_clean_tokens</span><span class="p">(</span><span class="n">sequences</span><span class="p">,</span> <span class="n">lowercase</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">)</span>
 
     <span class="c1"># nodes will be all unique tokens in the corpus</span>
     <span class="n">nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">sequences</span><span class="p">))</span>
@@ -102,42 +89,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">network</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-    <span class="k">return</span> <span class="n">network</span></div>
-
-
-<span class="k">def</span> <span class="nf">_clean_tokens</span><span class="p">(</span>
-    <span class="n">sequences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]],</span> <span class="n">lowercase</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">stopwords</span><span class="p">:</span> <span class="nb">bool</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;clean tokens based on parameters passed to network generation function</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        sequences (Union[List[list], List[np.array]]): list of term lists, list of numpy arrays containing terms, or list of strings.</span>
-<span class="sd">        lowercase (bool): parameter to indicate if tokens should be lowercase.</span>
-<span class="sd">        stopwords (bool): list of stopwords to tokens to exclude from vertices.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        List[list]: sequences with modified tokens</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># if there are stopwords and lowercase is true remove stopwords and lowercase in one iteration</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stopwords</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">lowercase</span><span class="p">:</span>
-        <span class="n">stopwords</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">stopwords</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stopwords</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">sequences</span>
-        <span class="p">]</span>
-
-    <span class="c1"># if lowercase is false, but there are stopwords only remove stopwords</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">stopwords</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lowercase</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stopwords</span><span class="p">]</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">sequences</span>
-        <span class="p">]</span>
-
-    <span class="c1"># if lowercase is true, but there are no stopwords only lowercase tokens</span>
-    <span class="k">elif</span> <span class="n">lowercase</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stopwords</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[[</span><span class="n">item</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">as_adj</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="p">(</span><span class="n">network</span><span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">sequences</span>
+        <span class="k">return</span> <span class="n">network</span></div>
 
 
 <span class="k">def</span> <span class="nf">_cooccurrence_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
