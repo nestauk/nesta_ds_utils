@@ -25,9 +25,20 @@ def test_network_from_nested_arrays():
 
 
 def test_network_as_adjacency_matrix():
+    """tests that when as_adj = True the function returns an adjacency matrix"""
     sequence = [
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
     ]
     network = build_coocc(sequence, as_adj=True)
     assert isinstance(network, scipy.sparse._csr.csr_matrix)
+
+
+def test_network_node_weight():
+    """tests that when use_node_weights = True the network has the correct node weights"""
+    sequence = [
+        ["I", "went", "to", "the", "party"],
+        ["i", "had", "fun", "at", "the", "party"],
+    ]
+    network = build_coocc(sequence, use_node_weights=True)
+    assert network.nodes["the"]["frequency"] == 2

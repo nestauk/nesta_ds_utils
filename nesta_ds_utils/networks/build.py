@@ -14,6 +14,7 @@ def build_coocc(
     weighted: bool = True,
     directed: bool = False,
     as_adj: bool = False,
+    use_node_weights: bool = False,
 ) -> Union[nx.Graph, scipy.sparse._csr.csr_matrix]:
     """generates a co-occurence graph based on pairwise co-occurence of terms.
 
@@ -25,13 +26,14 @@ def build_coocc(
         weighted (bool, optional): parameter to indicate of edges should be weighted. Defaults to True.
             If True, edge weights represent number of co-occurences.
         directed (bool, optional): parameter to indicate if edges should be directed. Defaults to False.
-            If True, edge directions are determined based on order of tokens. CURRENTLY NOT SUPPORTED.
+            If True, creates a symmetric graph.
         as_adj (bool, optional): parameter to indicate if network should be returned as an adjacency matrix
             rather than a Graph object.
+        use_node_weights (bool, optional): parameter to indicate if node frequency should be added as
+            a node attribute.
 
     Returns:
         nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.
-        Currently only supports undirected.
     """
     if directed == True:
         warnings.warn(
@@ -41,8 +43,14 @@ def build_coocc(
     network = nx.Graph()
 
     # nodes will be all unique tokens in the corpus
-    nodes = set(itertools.chain(*sequences))
+    all_tokens = list(chain(*sequences))
+    nodes = set(all_tokens)
     network.add_nodes_from(nodes)
+
+    # if using node weights, weights will represent frequency in the corpus
+    if use_node_weights:
+        node_weights = Counter(all_tokens)
+        nx.set_node_attributes(network, node_weights, "frequency")
 
     # edge weights are all times a pair of tokens have co-occured in the same sequence
     edge_weights = _cooccurrence_counts(sequences)
