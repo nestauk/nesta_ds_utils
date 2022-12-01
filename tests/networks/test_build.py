@@ -42,3 +42,17 @@ def test_network_node_weight():
     ]
     network = build_coocc(sequence, use_node_weights=True)
     assert network.nodes["the"]["frequency"] == 2
+
+
+def test_directed_network():
+    """tests that when directed = True the number of edges is double when the network is not directed"""
+    sequence = [
+        ["I", "went", "to", "the", "party"],
+        ["i", "had", "fun", "at", "the", "party"],
+    ]
+    directed_network = build_coocc(sequence, directed=True)
+    undirected_network = build_coocc(sequence)
+
+    assert (
+        directed_network.number_of_edges() == 2 * undirected_network.number_of_edges()
+    )

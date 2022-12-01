@@ -36,11 +36,9 @@ def build_coocc(
         nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.
     """
     if directed == True:
-        warnings.warn(
-            "Directed graphs are not currently supported by this function. Generating undirected Graph."
-        )
-
-    network = nx.Graph()
+        network = nx.DiGraph()
+    else:
+        network = nx.Graph()
 
     # nodes will be all unique tokens in the corpus
     all_tokens = list(chain(*sequences))
@@ -57,8 +55,12 @@ def build_coocc(
     for key, val in edge_weights.items():
         if weighted:
             network.add_edge(key[0], key[1], weight=val)
+            if directed:
+                network.add_edge(key[1], key[0], weight=val)
         else:
             network.add_edge(key[0], key[1])
+            if directed:
+                network.add_edge(key[1], key[0])
 
     # if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph
     if as_adj:
