@@ -1,5 +1,5 @@
 import pytest
-from nesta_ds_utils.networks.generate import build_coocc
+from nesta_ds_utils.networks.build import build_coocc
 import numpy as np
 import scipy
 

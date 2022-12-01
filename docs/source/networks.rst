@@ -1,5 +1,5 @@
 networks
 ==================
 .. toctree::
-   generate
+   build
    :maxdepth: 2
