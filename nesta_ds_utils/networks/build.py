@@ -53,14 +53,10 @@ def build_coocc(
     # edge weights are all times a pair of tokens have co-occured in the same sequence
     edge_weights = _cooccurrence_counts(sequences)
     for key, val in edge_weights.items():
-        if weighted:
-            network.add_edge(key[0], key[1], weight=val)
-            if directed:
-                network.add_edge(key[1], key[0], weight=val)
-        else:
-            network.add_edge(key[0], key[1])
-            if directed:
-                network.add_edge(key[1], key[0])
+        weight = {"weight": val} if weighted else {}
+        network.add_edge(key[0], key[1], **weight)
+        if directed:
+            network.add_edge(key[1], key[0], **weight)
 
     # if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph
     if as_adj:
