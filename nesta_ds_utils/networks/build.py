@@ -34,6 +34,7 @@ def build_coocc(
 
     Returns:
         nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.
+        if as_adj = True returns an adjacency matrix and set of nodes corresponding to rows/columns
     """
     if directed == True:
         network = nx.DiGraph()
@@ -60,7 +61,7 @@ def build_coocc(
 
     # if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph
     if as_adj:
-        return nx.adjacency_matrix(network)
+        return nx.adjacency_matrix(network), nodes
 
     else:
         return network

@@ -30,7 +30,7 @@ def test_network_as_adjacency_matrix():
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
     ]
-    network = build_coocc(sequence, as_adj=True)
+    network, node_list = build_coocc(sequence, as_adj=True)
     assert isinstance(network, scipy.sparse._csr.csr_matrix)
 
 
