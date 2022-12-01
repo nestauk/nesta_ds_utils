@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nesta_ds_utils.loading_saving.S3 &#8212; nesta_ds_utils 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">nesta_ds_utils 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nesta_ds_utils.loading_saving.S3</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for nesta_ds_utils.loading_saving.S3</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">xmlrpc.client</span> <span class="kn">import</span> <span class="n">Boolean</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
+<span class="kn">import</span> <span class="nn">pyarrow.parquet</span> <span class="k">as</span> <span class="nn">pq</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving</span> <span class="kn">import</span> <span class="n">file_ops</span>
+
+
+<span class="k">def</span> <span class="nf">get_bucket_filenames_s3</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Get a list of all files in bucket directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bucket_name (str): S3 bucket name</span>
+<span class="sd">        dir_name (str, optional): Directory or sub-directory within an S3 bucket.</span>
+<span class="sd">            Defaults to &#39;&#39; (the top level bucket directory).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List[str]: List of file names in bucket directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s3_resources</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+    <span class="n">bucket</span> <span class="o">=</span> <span class="n">s3_resources</span><span class="o">.</span><span class="n">Bucket</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">object_summary</span><span class="o">.</span><span class="n">key</span> <span class="k">for</span> <span class="n">object_summary</span> <span class="ow">in</span> <span class="n">bucket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Prefix</span><span class="o">=</span><span class="n">dir_name</span><span class="p">)</span>
+    <span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_df_to_fileobj</span><span class="p">(</span><span class="n">df_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert DataFrame into bytes file object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df_data (pd.DataFrame): Dataframe to convert.</span>
+<span class="sd">        path_to (str): Saving file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        io.BytesIO: Bytes file object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">):</span>
+        <span class="n">df_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
+        <span class="n">df_data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading dataframe currently supported only for &#39;csv&#39; and &#39;parquet&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buffer</span>
+
+
+<span class="k">def</span> <span class="nf">_dict_to_fileobj</span><span class="p">(</span><span class="n">dict_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert dictionary into bytes file object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dict_data (dict): Dictionary to convert.</span>
+<span class="sd">        path_to (str): Saving file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        io.BytesIO: Bytes file object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.json&quot;</span><span class="p">):</span>
+        <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Uploading dictionary currently supported only for &#39;json&#39;.&quot;</span><span class="p">)</span>
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buffer</span>
+
+
+<span class="k">def</span> <span class="nf">_list_to_fileobj</span><span class="p">(</span><span class="n">list_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert list into bytes file object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        list_data (list): List to convert.</span>
+<span class="sd">        path_to (str): Saving file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        io.BytesIO: Bytes file object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">):</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">list_data</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">list_data</span><span class="p">:</span>
+            <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.json&quot;</span><span class="p">):</span>
+        <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">list_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading list currently supported only for &#39;csv&#39;, &#39;txt&#39; and &#39;json&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buffer</span>
+
+
+<span class="k">def</span> <span class="nf">_str_to_fileobj</span><span class="p">(</span><span class="n">str_data</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert str into bytes file object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        str_data (str): String to convert.</span>
+<span class="sd">        path_to (str): Saving file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        io.BytesIO: Bytes file object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">):</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">str_data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Uploading string currently supported only for &#39;txt&#39;.&quot;</span><span class="p">)</span>
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buffer</span>
+
+
+<span class="k">def</span> <span class="nf">_np_array_to_fileobj</span><span class="p">(</span>
+    <span class="n">np_array_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert numpy array into bytes file object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        np_array_data (np.ndarray): Numpy array to convert.</span>
+<span class="sd">        path_to (str): Saving file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        io.BytesIO: Bytes file object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">):</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">np_array_data</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
+        <span class="n">pq</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">table</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">np_array_data</span><span class="p">}),</span> <span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading numpy array currently supported only for &#39;csv&#39; and &#39;parquet.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buffer</span>
+
+
+<span class="k">def</span> <span class="nf">_unsupp_data_to_fileobj</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert data into bytes file object using pickle file type.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (any): Data to convert.</span>
+<span class="sd">        path_to (str): Saving file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        io.BytesIO: Bytes file object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.pkl&quot;</span><span class="p">):</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;This file type is not supported for this data. Use &#39;pkl&#39; instead.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buffer</span>
+
+
+<div class="viewcode-block" id="upload_obj"><a class="viewcode-back" href="../../../S3.html#nesta_ds_utils.loading_saving.S3.upload_obj">[docs]</a><span class="k">def</span> <span class="nf">upload_obj</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
+    <span class="n">bucket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">kwargs_boto</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">kwargs_writing</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Uploads data from memory to S3 location.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj (any): Data to upload.</span>
+<span class="sd">        bucket (str): Bucket&#39;s name.</span>
+<span class="sd">        path_to (str): Path location to save data.</span>
+<span class="sd">        kwargs_boto (dict, optional): Dictionary of kwargs for boto3 function &#39;upload_fileobj&#39;.</span>
+<span class="sd">        kwargs_writing (dict, optional): Dictionary of kwargs for writing data.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_df_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_dict_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_list_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_str_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_np_array_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_unsupp_data_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Data uploaded as pickle. Please consider other accessible &quot;</span>
+            <span class="s2">&quot;file types among the suppoted ones.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+    <span class="n">s3</span><span class="o">.</span><span class="n">upload_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">bucket</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_boto</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_fileobj_to_df</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert bytes file object into dataframe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fileobj (io.BytesIO): Bytes file object.</span>
+<span class="sd">        path_from (str): Path of loaded data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Data as dataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_fileobj_to_dict</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert bytes file object into dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fileobj (io.BytesIO): Bytes file object.</span>
+<span class="sd">        path_from (str): Path of loaded data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Data as dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">fileobj</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_fileobj_to_list</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert bytes file object into list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fileobj (io.BytesIO): Bytes file object.</span>
+<span class="sd">        path_from (str): Path of loaded data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: Data as list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">):</span>
+        <span class="n">list_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">):</span>
+        <span class="n">list_data</span> <span class="o">=</span> <span class="n">fileobj</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.json&quot;</span><span class="p">):</span>
+        <span class="n">list_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">fileobj</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">list_data</span>
+
+
+<span class="k">def</span> <span class="nf">_fileobj_to_str</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert bytes file object into string.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fileobj (io.BytesIO): Bytes file object.</span>
+<span class="sd">        path_from (str): Path of loaded data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Data as string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">fileobj</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_fileobj_to_np_array</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convert bytes file object into numpy array.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fileobj (io.BytesIO): Bytes file object.</span>
+<span class="sd">        path_from (str): Path of loaded data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: Data as numpy array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.csv&quot;</span><span class="p">):</span>
+        <span class="n">np_array_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
+        <span class="n">np_array_data</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">np_array_data</span>
+
+
+<div class="viewcode-block" id="download_obj"><a class="viewcode-back" href="../../../S3.html#nesta_ds_utils.loading_saving.S3.download_obj">[docs]</a><span class="k">def</span> <span class="nf">download_obj</span><span class="p">(</span>
+    <span class="n">bucket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">download_as</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">kwargs_boto</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">kwargs_reading</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{},</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">any</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Download data to memory from S3 location.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bucket (str): Bucket&#39;s name.</span>
+<span class="sd">        path_from (str): Path to data in S3.</span>
+<span class="sd">        download_as (str, optional): Type of object downloading. Choose between</span>
+<span class="sd">        (&#39;dataframe&#39;, &#39;dict&#39;, &#39;list&#39;, &#39;str&#39;, &#39;np.array&#39;). Not needed for &#39;pkl files&#39;.</span>
+<span class="sd">        kwargs_boto (dict, optional): Dictionary of kwargs for boto3 function &#39;download_fileobj&#39;.</span>
+<span class="sd">        kwargs_reading (dict, optional): Dictionary of kwargs for reading data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        any: Donwloaded data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;.pkl&quot;</span><span class="p">])):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;This file type is not currently supported for download in memory.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+    <span class="n">fileobj</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="n">s3</span><span class="o">.</span><span class="n">download_fileobj</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_boto</span><span class="p">)</span>
+    <span class="n">fileobj</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">_fileobj_to_df</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;Download as dataframe currently supported only &quot;</span>
+                <span class="s2">&quot;for &#39;csv&#39; and &#39;parquet&#39;.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;dict&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.json&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">_fileobj_to_dict</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;Download as dictionary currently supported only &quot;</span> <span class="s2">&quot;for &#39;json&#39;.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">_fileobj_to_list</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;Download as list currently supported only &quot;</span>
+                <span class="s2">&quot;for &#39;csv&#39;, &#39;txt&#39; and &#39;json&#39;.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;str&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.txt&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">_fileobj_to_str</span><span class="p">(</span><span class="n">fileobj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Download as string currently supported only &quot;</span> <span class="s2">&quot;for &#39;txt&#39;.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;np.array&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">_fileobj_to_np_array</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+                <span class="s2">&quot;Download as numpy array currently supported only &quot;</span>
+                <span class="s2">&quot;for &#39;csv&#39; and &#39;parquet&#39;.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">download_as</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.pkl&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;download_as&#39; is required for this file type.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="s2">&quot;&#39;download_as&#39; not provided. Choose between (&#39;dataframe&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;dict&#39;, &#39;list&#39;, &#39;str&#39;, &#39;np.array&#39;). Not needed for &#39;pkl files&#39;.&#39;&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="upload_file"><a class="viewcode-back" href="../../../S3.html#nesta_ds_utils.loading_saving.S3.upload_file">[docs]</a><span class="k">def</span> <span class="nf">upload_file</span><span class="p">(</span><span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bucket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Upload local file from disk to S3 location.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path_from (str): Path to local file.</span>
+<span class="sd">        bucket (str): Bucket&#39;s name.</span>
+<span class="sd">        path_to (str): Destination path in S3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+    <span class="n">s3</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="n">bucket</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="download_file"><a class="viewcode-back" href="../../../S3.html#nesta_ds_utils.loading_saving.S3.download_file">[docs]</a><span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bucket</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Download data from S3 to local file on disk.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path_from (str): Path to data in S3</span>
+<span class="sd">        bucket (str): Buket&#39;s name</span>
+<span class="sd">        path_to (str): Destination path to disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create folder if not existing</span>
+    <span class="n">file_ops</span><span class="o">.</span><span class="n">make_path_if_not_exist</span><span class="p">(</span>
+        <span class="n">file_ops</span><span class="o">.</span><span class="n">_convert_str_to_pathlib_path</span><span class="p">(</span><span class="n">path_to</span><span class="p">)</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
+    <span class="n">s3</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/Nesta_Logo_Blue_RGB.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">nesta_ds_utils 0.1 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nesta_ds_utils.loading_saving.S3</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, DAP.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.3.
+    </div>
+  </body>
+</html>
