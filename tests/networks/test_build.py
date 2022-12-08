@@ -3,6 +3,7 @@ from nesta_ds_utils.networks.build import build_coocc
 import numpy as np
 import scipy
 import networkx as nx
+import math
 
 
 def test_network_from_nested_lists():
@@ -85,3 +86,17 @@ def test_association_strength():
         assert attrs[("went", "party")] == 1 / 2
     else:
         assert attrs[("party", "went")] == 1 / 2
+
+
+def test_cosine():
+    """tests that when the cosine similarity is used as an edge attribute it returns the correct value"""
+    sequence = [
+        ["I", "went", "to", "the", "party"],
+        ["i", "had", "fun", "at", "the", "party"],
+    ]
+    network = build_coocc(sequence, edge_attributes=["cosine"])
+    attrs = nx.get_edge_attributes(network, "cosine")
+    if ("went", "party") in attrs.keys():
+        assert attrs[("went", "party")] == 1 / math.sqrt(2)
+    else:
+        assert attrs[("party", "went")] == 1 / math.sqrt(2)
