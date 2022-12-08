@@ -60,7 +60,7 @@ def test_directed_network():
 
 
 def test_jaccard_similarity():
-    """tests that when jaccard similarity is used as an edge attribute it returns the correct value"""
+    """tests that when the jaccard similarity is used as an edge attribute it returns the correct value"""
     sequence = [
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
