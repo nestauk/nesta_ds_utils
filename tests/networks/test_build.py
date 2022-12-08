@@ -2,6 +2,7 @@ import pytest
 from nesta_ds_utils.networks.build import build_coocc
 import numpy as np
 import scipy
+import networkx as nx
 
 
 def test_network_from_nested_lists():
@@ -56,3 +57,14 @@ def test_directed_network():
     assert (
         directed_network.number_of_edges() == 2 * undirected_network.number_of_edges()
     )
+
+
+def test_jaccard_similarity():
+    """tests that when jaccard similarity is used as an edge attribute it returns the correct value"""
+    sequence = [
+        ["I", "went", "to", "the", "party"],
+        ["i", "had", "fun", "at", "the", "party"],
+    ]
+    network = build_coocc(sequence, edge_attributes=["jaccard_similarity"])
+    attrs = nx.get_edge_attributes(network, "jaccard_similarity")
+    assert attrs[("went", "party")] == 1 / 3

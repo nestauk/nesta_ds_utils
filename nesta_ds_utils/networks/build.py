@@ -15,6 +15,7 @@ def build_coocc(
     directed: bool = False,
     as_adj: bool = False,
     use_node_weights: bool = False,
+    edge_attributes: List = [],
 ) -> Union[nx.Graph, scipy.sparse._csr.csr_matrix]:
     """generates a co-occurence graph based on pairwise co-occurence of terms.
 
@@ -31,6 +32,8 @@ def build_coocc(
             rather than a Graph object.
         use_node_weights (bool, optional): parameter to indicate if node frequency should be added as
             a node attribute.
+        edge_attributes (List, optional): parameter to specify any attributes to add to the edges of the network.
+            Available options are 'jaccard_similarity' or 'association_strength'. Defaults to [].
 
     Returns:
         nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.
@@ -53,9 +56,20 @@ def build_coocc(
 
     # edge weights are all times a pair of tokens have co-occured in the same sequence
     edge_weights = _cooccurrence_counts(sequences)
+
+    # if using jaccard similarity as an edge attribute, calculate it for all nodes
+    if "jaccard_similarity" in edge_attributes:
+        jaccard_similarity = _jaccard_similarity(edge_weights, all_tokens)
+
+    # add edges to network
     for key, val in edge_weights.items():
         weight = {"weight": val} if weighted else {}
-        network.add_edge(key[0], key[1], **weight)
+        jaccard_sim = (
+            {"jaccard_similarity": jaccard_similarity[key]}
+            if "jaccard_similarity" in edge_attributes
+            else {}
+        )
+        network.add_edge(key[0], key[1], **weight, **jaccard_sim)
         if directed:
             network.add_edge(key[1], key[0], **weight)
 
@@ -78,3 +92,32 @@ def _cooccurrence_counts(sequences):
     """
     combos = (combinations(sorted(set(sequence)), 2) for sequence in sequences)
     return Counter(chain(*combos))
+
+
+def _frequency_counts(all_tokens: List) -> dict:
+    """counts frequency of all terms in corpus
+
+    Args:
+        all_tokens (List): list of all terms in corpus
+
+    Returns:
+        dict: key: token, value: frequency
+    """
+    return Counter(all_tokens)
+
+
+def _jaccard_similarity(edge_weights: dict, all_tokens: list) -> dict:
+    """calculate the jaccard similarity between nodes in the network
+
+    Args:
+        edge_weights (dict): co-occurence counts of the nodes in the network
+        all_tokens (list): list of all tokens in the corpus
+
+    Returns:
+        dict: key: pair of tokens, value: jaccard similarity
+    """
+    token_frequency = _frequency_counts(all_tokens)
+    jaccard_sims = defaultdict(int)
+    for key, val in edge_weights.items():
+        jaccard_sims[key] = val / (token_frequency[key[0]] + token_frequency[key[1]])
+    return jaccard_sims
