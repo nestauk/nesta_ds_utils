@@ -68,6 +68,6 @@ def test_jaccard_similarity():
     network = build_coocc(sequence, edge_attributes=["jaccard_similarity"])
     attrs = nx.get_edge_attributes(network, "jaccard_similarity")
     if ("went", "party") in attrs.keys():
-        assert attrs[("went", "party")] == 1 / 3
+        assert attrs[("went", "party")] == 1 / 2
     else:
-        assert attrs[("party", "went")] == 1 / 3
+        assert attrs[("party", "went")] == 1 / 2

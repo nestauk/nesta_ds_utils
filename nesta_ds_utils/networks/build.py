@@ -119,5 +119,7 @@ def _jaccard_similarity(edge_weights: dict, all_tokens: list) -> dict:
     token_frequency = _frequency_counts(all_tokens)
     jaccard_sims = defaultdict(int)
     for key, val in edge_weights.items():
-        jaccard_sims[key] = val / (token_frequency[key[0]] + token_frequency[key[1]])
+        jaccard_sims[key] = val / (
+            (token_frequency[key[0]] + token_frequency[key[1]]) - val
+        )
     return jaccard_sims
