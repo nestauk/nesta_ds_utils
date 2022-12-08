@@ -71,3 +71,17 @@ def test_jaccard_similarity():
         assert attrs[("went", "party")] == 1 / 2
     else:
         assert attrs[("party", "went")] == 1 / 2
+
+
+def test_association_strength():
+    """tests that when the association strength is used as an edge attribute it returns the correct value"""
+    sequence = [
+        ["I", "went", "to", "the", "party"],
+        ["i", "had", "fun", "at", "the", "party"],
+    ]
+    network = build_coocc(sequence, edge_attributes=["association_strength"])
+    attrs = nx.get_edge_attributes(network, "association_strength")
+    if ("went", "party") in attrs.keys():
+        assert attrs[("went", "party")] == 1 / 2
+    else:
+        assert attrs[("party", "went")] == 1 / 2

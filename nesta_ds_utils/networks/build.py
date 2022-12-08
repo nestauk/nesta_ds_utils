@@ -57,9 +57,11 @@ def build_coocc(
     # edge weights are all times a pair of tokens have co-occured in the same sequence
     edge_weights = _cooccurrence_counts(sequences)
 
-    # if using jaccard similarity as an edge attribute, calculate it for all nodes
+    # if using similarity metrics as edge attributes, calculate those
     if "jaccard_similarity" in edge_attributes:
         jaccard_similarity = _jaccard_similarity(edge_weights, all_tokens)
+    if "association_strength" in edge_attributes:
+        association_strength = _association_strength(edge_weights, all_tokens)
 
     # add edges to network
     for key, val in edge_weights.items():
@@ -69,7 +71,12 @@ def build_coocc(
             if "jaccard_similarity" in edge_attributes
             else {}
         )
-        network.add_edge(key[0], key[1], **weight, **jaccard_sim)
+        assoc_str = (
+            {"association_strength": association_strength[key]}
+            if "association_strength" in edge_attributes
+            else {}
+        )
+        network.add_edge(key[0], key[1], **weight, **jaccard_sim, **assoc_str)
         if directed:
             network.add_edge(key[1], key[0], **weight)
 
@@ -123,3 +130,22 @@ def _jaccard_similarity(edge_weights: dict, all_tokens: list) -> dict:
             (token_frequency[key[0]] + token_frequency[key[1]]) - val
         )
     return jaccard_sims
+
+
+def _association_strength(edge_weights: dict, all_tokens: list) -> dict:
+    """calculate the association strength between nodes in the network
+
+    Args:
+        edge_weights (dict): co-occurence counts of the nodes in the network
+        all_tokens (list): list of all tokens in the corpus
+
+    Returns:
+        dict: key: pair of tokens, value: association strength
+    """
+    token_frequency = _frequency_counts(all_tokens)
+    association_strengths = defaultdict(int)
+    for key, val in edge_weights.items():
+        association_strengths[key] = val / (
+            token_frequency[key[0]] * token_frequency[key[1]]
+        )
+    return association_strengths
