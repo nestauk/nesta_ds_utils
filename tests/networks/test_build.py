@@ -100,3 +100,17 @@ def test_cosine():
         assert attrs[("went", "party")] == 1 / math.sqrt(2)
     else:
         assert attrs[("party", "went")] == 1 / math.sqrt(2)
+
+
+def test_inclusion():
+    """tests that when the inclusion index is used as an edge attribute it returns the correct value"""
+    sequence = [
+        ["I", "went", "to", "the", "party"],
+        ["i", "had", "fun", "at", "the", "party"],
+    ]
+    network = build_coocc(sequence, edge_attributes=["inclusion_index"])
+    attrs = nx.get_edge_attributes(network, "inclusion_index")
+    if ("went", "party") in attrs.keys():
+        assert attrs[("went", "party")] == 1
+    else:
+        assert attrs[("party", "went")] == 1

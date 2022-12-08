@@ -34,8 +34,8 @@ def build_coocc(
         use_node_weights (bool, optional): parameter to indicate if node frequency should be added as
             a node attribute.
         edge_attributes (List, optional): parameter to specify any attributes to add to the edges of the network.
-            Available options are 'jaccard_similarity', 'association_strength', or 'cosine'. Defaults to [].
-            Functions are based on van Eck and Waltman, 2009.
+            Available options are 'jaccard_similarity', 'association_strength', 'cosine', or 'inclusion_index'.
+            Defaults to []. Functions are based on van Eck and Waltman, 2009.
 
     Returns:
         nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.
@@ -66,6 +66,8 @@ def build_coocc(
         association_strength = _association_strength(edge_weights, all_tokens)
     if "cosine" in edge_attributes:
         cosine_sim = _cosine_sim(edge_weights, all_tokens)
+    if "inclusion_index" in edge_attributes:
+        inclusion_index = _inclusion_index(edge_weights, all_tokens)
 
     # add edges to network
     for key, val in edge_weights.items():
@@ -81,12 +83,25 @@ def build_coocc(
             else {}
         )
         co_sim = {"cosine": cosine_sim[key]} if "cosine" in edge_attributes else {}
+        inclusion = (
+            {"inclusion_index": inclusion_index[key]}
+            if "inclusion_index" in edge_attributes
+            else {}
+        )
 
-        network.add_edge(key[0], key[1], **weight, **jaccard_sim, **assoc_str, **co_sim)
+        network.add_edge(
+            key[0], key[1], **weight, **jaccard_sim, **assoc_str, **co_sim, **inclusion
+        )
 
         if directed:
             network.add_edge(
-                key[1], key[0], **weight, **jaccard_sim, **assoc_str, **co_sim
+                key[1],
+                key[0],
+                **weight,
+                **jaccard_sim,
+                **assoc_str,
+                **co_sim,
+                **inclusion
             )
 
     # if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph
@@ -177,3 +192,22 @@ def _cosine_sim(edge_weights: dict, all_tokens: list) -> dict:
             math.sqrt(token_frequency[key[0]] * token_frequency[key[1]])
         )
     return cosine_similarities
+
+
+def _inclusion_index(edge_weights: dict, all_tokens: list) -> dict:
+    """calculate the inclusion index between nodes in the network
+
+    Args:
+        edge_weights (dict): co-occurence counts of the nodes in the network
+        all_tokens (list): list of all tokens in the corpus
+
+    Returns:
+        dict: key: pair of tokens, value: inclusion index
+    """
+    token_frequency = _frequency_counts(all_tokens)
+    inclusion_index = defaultdict(int)
+    for key, val in edge_weights.items():
+        inclusion_index[key] = val / min(
+            token_frequency[key[0]], token_frequency[key[1]]
+        )
+    return inclusion_index
