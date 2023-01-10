@@ -16,6 +16,7 @@ def build_coocc(
     directed: bool = False,
     as_adj: bool = False,
     use_node_weights: bool = False,
+    min_node_frequency: int = 0,
     edge_attributes: List = [],
 ) -> Union[nx.Graph, scipy.sparse._csr.csr_matrix]:
     """generates a co-occurence graph based on pairwise co-occurence of terms.
@@ -33,6 +34,7 @@ def build_coocc(
             rather than a Graph object.
         use_node_weights (bool, optional): parameter to indicate if node frequency should be added as
             a node attribute.
+        min_node_frequency (0, optional): filter nodes with less than the given frequency
         edge_attributes (List, optional): parameter to specify any attributes to add to the edges of the network.
             Available options are 'jaccard_similarity', 'association_strength', 'cosine', or 'inclusion_index'.
             Defaults to []. Functions are based on van Eck and Waltman, 2009.
@@ -49,12 +51,16 @@ def build_coocc(
     # nodes will be all unique tokens in the corpus
     all_tokens = list(chain(*sequences))
     nodes = set(all_tokens)
-    network.add_nodes_from(nodes)
+    token_frequency = Counter(all_tokens)
+
+    # only add nodes where frequency > min_node_frequency
+    for node, freq in token_frequency:
+        if freq > min_node_frequency:
+            network.add_node(node)
 
     # if using node weights, weights will represent frequency in the corpus
     if use_node_weights:
-        node_weights = Counter(all_tokens)
-        nx.set_node_attributes(network, node_weights, "frequency")
+        nx.set_node_attributes(network, token_frequency, "frequency")
 
     # edge weights are all times a pair of tokens have co-occured in the same sequence
     edge_weights = _cooccurrence_counts(sequences)
