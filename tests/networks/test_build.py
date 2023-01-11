@@ -62,7 +62,18 @@ def test_directed_network():
     )
 
 
-def test_jaccard_similarity():
+def test_jaccard_exists():
+    """tests that when jaccard similarity is used as an edge attribute it exists"""
+    sequence = [
+        [0, 1, 2, 3, 4],
+        [0, 5, 6, 7, 3, 4],
+    ]
+    network = build_coocc(sequence, edge_attributes=["jaccard"])
+    attr_list = list(list(network.edges(data=True))[0][-1].keys())
+    assert "jaccard_similarity" in attr_list
+
+
+def test_jaccard_similarity_val():
     """tests that when the jaccard similarity is used as an edge attribute it returns the correct value"""
     sequence = [
         [0, 1, 2, 3, 4],
@@ -76,7 +87,18 @@ def test_jaccard_similarity():
         assert attrs[(4, 1)] == 1 / 2
 
 
-def test_association_strength():
+def test_association_strength_exists():
+    """tests that when association strength is used as an edge attribute it exists"""
+    sequence = [
+        [0, 1, 2, 3, 4],
+        [0, 5, 6, 7, 3, 4],
+    ]
+    network = build_coocc(sequence, edge_attributes=["association"])
+    attr_list = list(list(network.edges(data=True))[0][-1].keys())
+    assert "association_strength" in attr_list
+
+
+def test_association_strength_val():
     """tests that when the association strength is used as an edge attribute it returns the correct value"""
     sequence = [
         [0, 1, 2, 3, 4],
@@ -90,7 +112,18 @@ def test_association_strength():
         assert attrs[(4, 1)] == 1 / 2
 
 
-def test_cosine():
+def test_cosine_exists():
+    """tests that when cosine similarity is used as an edge attribute it exists"""
+    sequence = [
+        [0, 1, 2, 3, 4],
+        [0, 5, 6, 7, 3, 4],
+    ]
+    network = build_coocc(sequence, edge_attributes=["cosine"])
+    attr_list = list(list(network.edges(data=True))[0][-1].keys())
+    assert "cosine_similarity" in attr_list
+
+
+def test_cosine_val():
     """tests that when the cosine similarity is used as an edge attribute it returns the correct value"""
     sequence = [
         [0, 1, 2, 3, 4],
@@ -104,7 +137,18 @@ def test_cosine():
         assert attrs[(4, 1)] == 1 / math.sqrt(2)
 
 
-def test_inclusion():
+def test_inclusion_exists():
+    """tests that when the inclusion index is used as an edge attribute it exists"""
+    sequence = [
+        [0, 1, 2, 3, 4],
+        [0, 5, 6, 7, 3, 4],
+    ]
+    network = build_coocc(sequence, edge_attributes=["inclusion"])
+    attr_list = list(list(network.edges(data=True))[0][-1].keys())
+    assert "inclusion_index" in attr_list
+
+
+def test_inclusion_val():
     """tests that when the inclusion index is used as an edge attribute it returns the correct value"""
     sequence = [
         [0, 1, 2, 3, 4],
