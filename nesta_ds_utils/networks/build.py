@@ -17,7 +17,7 @@ def build_coocc(
     use_node_weights: bool = False,
     edge_attributes: List = [],
 ) -> Union[nx.Graph, scipy.sparse._csr.csr_matrix]:
-    """generates a co-occurence graph based on pairwise co-occurence of terms.
+    """generates a co-occurence graph based on pairwise co-occurence of tokens.
 
     Args:
         sequences (Union[List[list], List[np.array]]):
@@ -104,10 +104,10 @@ def _cooccurrence_counts(sequences):
 
 
 def _node_frequency_counts(all_tokens: List) -> dict:
-    """counts frequency of all terms in corpus
+    """counts frequency of all tokens in corpus
 
     Args:
-        all_tokens (List): list of all terms in corpus
+        all_tokens (List): list of all tokens in corpus
 
     Returns:
         dict: key: token, value: frequency
