@@ -34,7 +34,7 @@ def build_coocc(
         use_node_weights (bool, optional): parameter to indicate if node frequency should be added as
             a node attribute.
         edge_attributes (List, optional): parameter to specify any attributes to add to the edges of the network.
-            Available options are 'jaccard_similarity', 'association_strength', 'cosine', or 'inclusion_index'.
+            Available options are 'jaccard', 'association', 'cosine', or 'inclusion'.
             Defaults to []. Functions are based on van Eck and Waltman, 2009.
 
     Returns:
@@ -60,13 +60,13 @@ def build_coocc(
     edge_weights = _cooccurrence_counts(sequences)
 
     # if using similarity metrics as edge attributes, calculate those
-    if "jaccard_similarity" in edge_attributes:
+    if "jaccard" in edge_attributes:
         jaccard_similarity = _jaccard_similarity(edge_weights, all_tokens)
-    if "association_strength" in edge_attributes:
+    if "association" in edge_attributes:
         association_strength = _association_strength(edge_weights, all_tokens)
     if "cosine" in edge_attributes:
         cosine_sim = _cosine_sim(edge_weights, all_tokens)
-    if "inclusion_index" in edge_attributes:
+    if "inclusion" in edge_attributes:
         inclusion_index = _inclusion_index(edge_weights, all_tokens)
 
     # add edges to network
@@ -74,18 +74,18 @@ def build_coocc(
         weight = {"weight": val} if weighted else {}
         jaccard_sim = (
             {"jaccard_similarity": jaccard_similarity[key]}
-            if "jaccard_similarity" in edge_attributes
+            if "jaccard" in edge_attributes
             else {}
         )
         assoc_str = (
             {"association_strength": association_strength[key]}
-            if "association_strength" in edge_attributes
+            if "association" in edge_attributes
             else {}
         )
         co_sim = {"cosine": cosine_sim[key]} if "cosine" in edge_attributes else {}
         inclusion = (
             {"inclusion_index": inclusion_index[key]}
-            if "inclusion_index" in edge_attributes
+            if "inclusion" in edge_attributes
             else {}
         )
 

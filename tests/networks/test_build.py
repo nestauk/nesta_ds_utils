@@ -66,7 +66,7 @@ def test_jaccard_similarity():
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
     ]
-    network = build_coocc(sequence, edge_attributes=["jaccard_similarity"])
+    network = build_coocc(sequence, edge_attributes=["jaccard"])
     attrs = nx.get_edge_attributes(network, "jaccard_similarity")
     if ("went", "party") in attrs.keys():
         assert attrs[("went", "party")] == 1 / 2
@@ -80,7 +80,7 @@ def test_association_strength():
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
     ]
-    network = build_coocc(sequence, edge_attributes=["association_strength"])
+    network = build_coocc(sequence, edge_attributes=["association"])
     attrs = nx.get_edge_attributes(network, "association_strength")
     if ("went", "party") in attrs.keys():
         assert attrs[("went", "party")] == 1 / 2
@@ -108,7 +108,7 @@ def test_inclusion():
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
     ]
-    network = build_coocc(sequence, edge_attributes=["inclusion_index"])
+    network = build_coocc(sequence, edge_attributes=["inclusion"])
     attrs = nx.get_edge_attributes(network, "inclusion_index")
     if ("went", "party") in attrs.keys():
         assert attrs[("went", "party")] == 1
