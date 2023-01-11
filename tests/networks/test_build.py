@@ -12,8 +12,8 @@ def test_network_from_nested_lists():
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
     ]
-    network = build_coocc(sequence)
-    assert network["the"]["party"]["weight"] == 2
+    network = build_coocc(sequence, edge_attributes=["frequency"])
+    assert network["the"]["party"]["frequency"] == 2
 
 
 def test_network_from_nested_arrays():
@@ -22,8 +22,8 @@ def test_network_from_nested_arrays():
         np.array(["I", "went", "to", "the", "party"]),
         np.array(["i", "had", "fun", "at", "the", "party"]),
     ]
-    network = build_coocc(sequence)
-    assert network["the"]["party"]["weight"] == 2
+    network = build_coocc(sequence, edge_attributes=["frequency"])
+    assert network["the"]["party"]["frequency"] == 2
 
 
 def test_network_as_adjacency_matrix():
@@ -42,7 +42,9 @@ def test_network_node_weight():
         ["I", "went", "to", "the", "party"],
         ["i", "had", "fun", "at", "the", "party"],
     ]
-    network = build_coocc(sequence, use_node_weights=True)
+    network = build_coocc(
+        sequence, use_node_weights=True, edge_attributes=["frequency"]
+    )
     assert network.nodes["the"]["frequency"] == 2
 
 
@@ -95,7 +97,7 @@ def test_cosine():
         ["i", "had", "fun", "at", "the", "party"],
     ]
     network = build_coocc(sequence, edge_attributes=["cosine"])
-    attrs = nx.get_edge_attributes(network, "cosine")
+    attrs = nx.get_edge_attributes(network, "cosine_similarity")
     if ("went", "party") in attrs.keys():
         assert attrs[("went", "party")] == 1 / math.sqrt(2)
     else:

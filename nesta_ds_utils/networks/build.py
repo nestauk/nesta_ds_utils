@@ -12,7 +12,6 @@ import math
 def build_coocc(
     sequences: Union[List[list], List[np.array]],
     graph_type: str = "networkx",
-    weighted: bool = True,
     directed: bool = False,
     as_adj: bool = False,
     use_node_weights: bool = False,
@@ -25,8 +24,6 @@ def build_coocc(
             list of lists or list of numpy arrays containing tokens to use as nodes in the network.
         graph_type (str, optional): Python library to use for network generation.
             Currently only supports 'networkx' but future development should support 'graph-tool'
-        weighted (bool, optional): parameter to indicate of edges should be weighted. Defaults to True.
-            If True, edge weights represent number of co-occurences.
         directed (bool, optional): parameter to indicate if edges should be directed. Defaults to False.
             If True, creates a symmetric graph.
         as_adj (bool, optional): parameter to indicate if network should be returned as an adjacency matrix
@@ -34,7 +31,7 @@ def build_coocc(
         use_node_weights (bool, optional): parameter to indicate if node frequency should be added as
             a node attribute.
         edge_attributes (List, optional): parameter to specify any attributes to add to the edges of the network.
-            Available options are 'jaccard', 'association', 'cosine', or 'inclusion'.
+            Available options are 'frequency', 'jaccard', 'association', 'cosine', or 'inclusion'.
             Defaults to []. Functions are based on van Eck and Waltman, 2009.
 
     Returns:
@@ -52,57 +49,38 @@ def build_coocc(
     network.add_nodes_from(nodes)
 
     # if using node weights, weights will represent frequency in the corpus
+
     if use_node_weights:
         node_weights = Counter(all_tokens)
         nx.set_node_attributes(network, node_weights, "frequency")
 
     # edge weights are all times a pair of tokens have co-occured in the same sequence
-    edge_weights = _cooccurrence_counts(sequences)
+    cooccurrences = _cooccurrence_counts(sequences)
+
+    edges = {x: defaultdict() for x in cooccurrences.keys()}
 
     # if using similarity metrics as edge attributes, calculate those
+    if "frequency" in edge_attributes:
+        for node, freq in cooccurrences.items():
+            edges[node]["frequency"] = freq
     if "jaccard" in edge_attributes:
-        jaccard_similarity = _jaccard_similarity(edge_weights, all_tokens)
+        for node, sim in _jaccard_similarity(cooccurrences, all_tokens).items():
+            edges[node]["jaccard_similarity"] = sim
     if "association" in edge_attributes:
-        association_strength = _association_strength(edge_weights, all_tokens)
+        for node, sim in _association_strength(cooccurrences, all_tokens).items():
+            edges[node]["association_strength"] = sim
     if "cosine" in edge_attributes:
-        cosine_sim = _cosine_sim(edge_weights, all_tokens)
+        for node, sim in _cosine_sim(cooccurrences, all_tokens).items():
+            edges[node]["cosine_similarity"] = sim
     if "inclusion" in edge_attributes:
-        inclusion_index = _inclusion_index(edge_weights, all_tokens)
+        for node, sim in _inclusion_index(cooccurrences, all_tokens).items():
+            edges[node]["inclusion_index"] = sim
 
     # add edges to network
-    for key, val in edge_weights.items():
-        weight = {"weight": val} if weighted else {}
-        jaccard_sim = (
-            {"jaccard_similarity": jaccard_similarity[key]}
-            if "jaccard" in edge_attributes
-            else {}
-        )
-        assoc_str = (
-            {"association_strength": association_strength[key]}
-            if "association" in edge_attributes
-            else {}
-        )
-        co_sim = {"cosine": cosine_sim[key]} if "cosine" in edge_attributes else {}
-        inclusion = (
-            {"inclusion_index": inclusion_index[key]}
-            if "inclusion" in edge_attributes
-            else {}
-        )
+    network.add_edges_from(list((u, v, edges[(u, v)]) for u, v in edges.keys()))
 
-        network.add_edge(
-            key[0], key[1], **weight, **jaccard_sim, **assoc_str, **co_sim, **inclusion
-        )
-
-        if directed:
-            network.add_edge(
-                key[1],
-                key[0],
-                **weight,
-                **jaccard_sim,
-                **assoc_str,
-                **co_sim,
-                **inclusion
-            )
+    if directed:
+        network.add_edges_from(list((v, u, edges[(u, v)]) for u, v in edges.keys()))
 
     # if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph
     if as_adj:
