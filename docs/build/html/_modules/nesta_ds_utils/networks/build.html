@@ -43,31 +43,33 @@
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">combinations</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 <span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">math</span>
 
 
 <div class="viewcode-block" id="build_coocc"><a class="viewcode-back" href="../../../build.html#nesta_ds_utils.networks.build.build_coocc">[docs]</a><span class="k">def</span> <span class="nf">build_coocc</span><span class="p">(</span>
     <span class="n">sequences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]],</span>
     <span class="n">graph_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;networkx&quot;</span><span class="p">,</span>
-    <span class="n">weighted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">directed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">as_adj</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">use_node_weights</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">edge_attributes</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">_csr</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;generates a co-occurence graph based on pairwise co-occurence of terms.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;generates a co-occurence graph based on pairwise co-occurence of tokens.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        sequences (Union[List[list], List[np.array]]):</span>
 <span class="sd">            list of lists or list of numpy arrays containing tokens to use as nodes in the network.</span>
 <span class="sd">        graph_type (str, optional): Python library to use for network generation.</span>
 <span class="sd">            Currently only supports &#39;networkx&#39; but future development should support &#39;graph-tool&#39;</span>
-<span class="sd">        weighted (bool, optional): parameter to indicate of edges should be weighted. Defaults to True.</span>
-<span class="sd">            If True, edge weights represent number of co-occurences.</span>
 <span class="sd">        directed (bool, optional): parameter to indicate if edges should be directed. Defaults to False.</span>
 <span class="sd">            If True, creates a symmetric graph.</span>
 <span class="sd">        as_adj (bool, optional): parameter to indicate if network should be returned as an adjacency matrix</span>
 <span class="sd">            rather than a Graph object.</span>
 <span class="sd">        use_node_weights (bool, optional): parameter to indicate if node frequency should be added as</span>
 <span class="sd">            a node attribute.</span>
+<span class="sd">        edge_attributes (List, optional): parameter to specify any attributes to add to the edges of the network.</span>
+<span class="sd">            Available options are &#39;frequency&#39;, &#39;jaccard&#39;, &#39;association&#39;, &#39;cosine&#39;, or &#39;inclusion&#39;.</span>
+<span class="sd">            Defaults to []. Functions are based on van Eck and Waltman, 2009.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        nx.Graph: Returns networkx graph object. If directed=True returns nx.DiGraph, otherwise returns nx.Graph.</span>
@@ -84,17 +86,38 @@
     <span class="n">network</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
 
     <span class="c1"># if using node weights, weights will represent frequency in the corpus</span>
+
     <span class="k">if</span> <span class="n">use_node_weights</span><span class="p">:</span>
         <span class="n">node_weights</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">)</span>
         <span class="n">nx</span><span class="o">.</span><span class="n">set_node_attributes</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="n">node_weights</span><span class="p">,</span> <span class="s2">&quot;frequency&quot;</span><span class="p">)</span>
 
     <span class="c1"># edge weights are all times a pair of tokens have co-occured in the same sequence</span>
-    <span class="n">edge_weights</span> <span class="o">=</span> <span class="n">_cooccurrence_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">edge_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">weight</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">val</span><span class="p">}</span> <span class="k">if</span> <span class="n">weighted</span> <span class="k">else</span> <span class="p">{}</span>
-        <span class="n">network</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">weight</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">directed</span><span class="p">:</span>
-            <span class="n">network</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">weight</span><span class="p">)</span>
+    <span class="n">cooccurrences</span> <span class="o">=</span> <span class="n">_cooccurrence_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+
+    <span class="n">edges</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cooccurrences</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+    <span class="c1"># if using similarity metrics as edge attributes, calculate those</span>
+    <span class="k">if</span> <span class="s2">&quot;frequency&quot;</span> <span class="ow">in</span> <span class="n">edge_attributes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="n">cooccurrences</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">edges</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;frequency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq</span>
+    <span class="k">if</span> <span class="s2">&quot;jaccard&quot;</span> <span class="ow">in</span> <span class="n">edge_attributes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">sim</span> <span class="ow">in</span> <span class="n">_jaccard_similarity</span><span class="p">(</span><span class="n">cooccurrences</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">edges</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;jaccard_similarity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span>
+    <span class="k">if</span> <span class="s2">&quot;association&quot;</span> <span class="ow">in</span> <span class="n">edge_attributes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">sim</span> <span class="ow">in</span> <span class="n">_association_strength</span><span class="p">(</span><span class="n">cooccurrences</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">edges</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;association_strength&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span>
+    <span class="k">if</span> <span class="s2">&quot;cosine&quot;</span> <span class="ow">in</span> <span class="n">edge_attributes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">sim</span> <span class="ow">in</span> <span class="n">_cosine_sim</span><span class="p">(</span><span class="n">cooccurrences</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">edges</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;cosine_similarity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span>
+    <span class="k">if</span> <span class="s2">&quot;inclusion&quot;</span> <span class="ow">in</span> <span class="n">edge_attributes</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">sim</span> <span class="ow">in</span> <span class="n">_inclusion_index</span><span class="p">(</span><span class="n">cooccurrences</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">edges</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="s2">&quot;inclusion_index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span>
+
+    <span class="c1"># add edges to network</span>
+    <span class="n">network</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)])</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">edges</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="k">if</span> <span class="n">directed</span><span class="p">:</span>
+        <span class="n">network</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">edges</span><span class="p">[(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)])</span> <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">edges</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
     <span class="c1"># if as_adj is true this will return a sparse matrix, otherwise it will return a networkx graph</span>
     <span class="k">if</span> <span class="n">as_adj</span><span class="p">:</span>
@@ -105,7 +128,7 @@
 
 
 <span class="k">def</span> <span class="nf">_cooccurrence_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;counts the pairs of cooccuring tokens in a sequence</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;counts the pairs of cooccuring tokens in a sequence</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        sequences (list): list of lists or arrays containing tokens</span>
@@ -115,6 +138,94 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">combos</span> <span class="o">=</span> <span class="p">(</span><span class="n">combinations</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">sequence</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">sequences</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">combos</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">_node_frequency_counts</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;counts frequency of all tokens in corpus</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        all_tokens (List): list of all tokens in corpus</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: key: token, value: frequency</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_jaccard_similarity</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the jaccard similarity between nodes in the network</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        edge_weights (dict): co-occurence counts of the nodes in the network</span>
+<span class="sd">        all_tokens (list): list of all tokens in the corpus</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: key: pair of tokens, value: jaccard similarity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">token_frequency</span> <span class="o">=</span> <span class="n">_node_frequency_counts</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">)</span>
+    <span class="n">jaccard_sims</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">edge_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">jaccard_sims</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="o">-</span> <span class="n">val</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">jaccard_sims</span>
+
+
+<span class="k">def</span> <span class="nf">_association_strength</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the association strength between nodes in the network</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        edge_weights (dict): co-occurence counts of the nodes in the network</span>
+<span class="sd">        all_tokens (list): list of all tokens in the corpus</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: key: pair of tokens, value: association strength</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">token_frequency</span> <span class="o">=</span> <span class="n">_node_frequency_counts</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">)</span>
+    <span class="n">association_strengths</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">edge_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">association_strengths</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">association_strengths</span>
+
+
+<span class="k">def</span> <span class="nf">_cosine_sim</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the cosine similarity between nodes in the network</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        edge_weights (dict): co-occurence counts of the nodes in the network</span>
+<span class="sd">        all_tokens (list): list of all tokens in the corpus</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: key: pair of tokens, value: cosine similarity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">token_frequency</span> <span class="o">=</span> <span class="n">_node_frequency_counts</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">)</span>
+    <span class="n">cosine_similarities</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">edge_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">cosine_similarities</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">cosine_similarities</span>
+
+
+<span class="k">def</span> <span class="nf">_inclusion_index</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the inclusion index between nodes in the network</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        edge_weights (dict): co-occurence counts of the nodes in the network</span>
+<span class="sd">        all_tokens (list): list of all tokens in the corpus</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: key: pair of tokens, value: inclusion index</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">token_frequency</span> <span class="o">=</span> <span class="n">_node_frequency_counts</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">)</span>
+    <span class="n">inclusion_index</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">edge_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">inclusion_index</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span> <span class="o">/</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">token_frequency</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">inclusion_index</span>
 </pre></div>
 
             <div class="clearer"></div>

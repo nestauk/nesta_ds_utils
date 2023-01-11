@@ -48,7 +48,7 @@
 
 
 <span class="k">def</span> <span class="nf">_find_averta</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Search for averta font, otherwise return &#39;Helvetica&#39; and raise a warning.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for averta font, otherwise return &#39;Helvetica&#39; and raise a warning.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: Return averta installation name, if found. Return &#39;Helvetica&#39; otherwise.</span>
@@ -65,7 +65,7 @@
 
 
 <span class="k">def</span> <span class="nf">_load_nesta_theme</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Define Nesta&#39;s styling theme using format expected by altair.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define Nesta&#39;s styling theme using format expected by altair.&quot;&quot;&quot;</span>
     <span class="n">font</span> <span class="o">=</span> <span class="n">_find_averta</span><span class="p">()</span>
     <span class="n">theme_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="s2">&quot;themes&quot;</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">theme_dir</span> <span class="o">+</span> <span class="s2">&quot;/nesta_theme_&quot;</span> <span class="o">+</span> <span class="n">font</span> <span class="o">+</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
@@ -74,7 +74,7 @@
 
 
 <div class="viewcode-block" id="setup_theme"><a class="viewcode-back" href="../../../../formatting.html#nesta_ds_utils.viz.altair.formatting.setup_theme">[docs]</a><span class="k">def</span> <span class="nf">setup_theme</span><span class="p">(</span><span class="n">theme_name</span><span class="o">=</span><span class="s2">&quot;nesta&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Enable a theme for an altair figure. Currently only supports nesta theme.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enable a theme for an altair figure. Currently only supports nesta theme.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        theme_name (str, optional): Theme to load. Defaults to &#39;nesta&#39;. Currently only acceptable value is &#39;nesta&#39;.</span>
