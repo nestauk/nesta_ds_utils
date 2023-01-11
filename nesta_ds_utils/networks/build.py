@@ -103,7 +103,7 @@ def _cooccurrence_counts(sequences):
     return Counter(chain(*combos))
 
 
-def _frequency_counts(all_tokens: List) -> dict:
+def _node_frequency_counts(all_tokens: List) -> dict:
     """counts frequency of all terms in corpus
 
     Args:
@@ -125,7 +125,7 @@ def _jaccard_similarity(edge_weights: dict, all_tokens: list) -> dict:
     Returns:
         dict: key: pair of tokens, value: jaccard similarity
     """
-    token_frequency = _frequency_counts(all_tokens)
+    token_frequency = _node_frequency_counts(all_tokens)
     jaccard_sims = defaultdict(int)
     for key, val in edge_weights.items():
         jaccard_sims[key] = val / (
@@ -144,7 +144,7 @@ def _association_strength(edge_weights: dict, all_tokens: list) -> dict:
     Returns:
         dict: key: pair of tokens, value: association strength
     """
-    token_frequency = _frequency_counts(all_tokens)
+    token_frequency = _node_frequency_counts(all_tokens)
     association_strengths = defaultdict(int)
     for key, val in edge_weights.items():
         association_strengths[key] = val / (
@@ -163,7 +163,7 @@ def _cosine_sim(edge_weights: dict, all_tokens: list) -> dict:
     Returns:
         dict: key: pair of tokens, value: cosine similarity
     """
-    token_frequency = _frequency_counts(all_tokens)
+    token_frequency = _node_frequency_counts(all_tokens)
     cosine_similarities = defaultdict(int)
     for key, val in edge_weights.items():
         cosine_similarities[key] = val / (
@@ -182,7 +182,7 @@ def _inclusion_index(edge_weights: dict, all_tokens: list) -> dict:
     Returns:
         dict: key: pair of tokens, value: inclusion index
     """
-    token_frequency = _frequency_counts(all_tokens)
+    token_frequency = _node_frequency_counts(all_tokens)
     inclusion_index = defaultdict(int)
     for key, val in edge_weights.items():
         inclusion_index[key] = val / min(
