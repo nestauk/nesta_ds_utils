@@ -10,10 +10,10 @@ The package requires Python 3.8, or higher. To install the basic package functio
 Since this package has functions useful for a wide range of use cases, you can choose which sets of requirements to install with the package. This is handy for not having to download large and potentially dependency-clashing packages unneccessarily.
 
 For example, if you only want to use the functions in the `/networks` folder you can run:
-`pip install git+https://github.com/nestauk/nesta_ds_utils.git[networks]`
+`pip install git+https://github.com/nestauk/nesta_ds_utils.git#egg=nesta_ds_utils"[networks]" `
 
 and if you wanted to use the `/loading_saving` S3 functions and the functions in the `/viz` folder you can run:
-`pip install git+https://github.com/nestauk/nesta_ds_utils.git[s3, viz]`
+`pip install git+https://github.com/nestauk/nesta_ds_utils.git#egg=nesta_ds_utils"[s3,viz]"`
 
 The full set of options to choose from are `[s3, viz, networks, nlp]`.
 
