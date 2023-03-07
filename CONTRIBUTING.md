@@ -53,7 +53,8 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 
 11. Add any new requirements in `setup.cfg` (make sure to include versions):
 
-    - Package requirements should go under `options.install_requires`
+    - General package requirements should go under `options.install_requires`
+    - Usage-specific packages, e.g. `networkx` which will only be used for networks, should go under e.g. `options.extras_require.networks`. This will keep the package lightweight and allow people to only install what they need.
     - Development only requirements should go under `options.extras_require.dev`
     - Testing only requirements should go under `options.extras_require.test`
 
