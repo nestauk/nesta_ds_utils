@@ -12,10 +12,13 @@ Since this package has functions useful for a wide range of use cases, you can c
 For example, if you only want to use the functions in the `/networks` folder you can run:
 `pip install git+https://github.com/nestauk/nesta_ds_utils.git#egg=nesta_ds_utils"[networks]" `
 
-and if you wanted to use the `/loading_saving` S3 functions and the functions in the `/viz` folder you can run:
+If you wanted to use the `/loading_saving` S3 functions and the functions in the `/viz` folder you can run:
 `pip install git+https://github.com/nestauk/nesta_ds_utils.git#egg=nesta_ds_utils"[s3,viz]"`
 
-The full set of options to choose from are `[s3, viz, networks, nlp]`.
+Alternatively, if you want to have all of the package's functionality you can run:
+`pip install git+https://github.com/nestauk/nesta_ds_utils.git#egg=nesta_ds_utils"[all]"`
+
+The full set of options to choose from are `[s3, viz, networks, nlp, all]`.
 
 ### How to use 📚
 

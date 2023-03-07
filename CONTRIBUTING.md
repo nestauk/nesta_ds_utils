@@ -37,7 +37,7 @@ If the feature is approved, open a new Feature Request in the `nesta_ds_utils` r
 2. Clone the repository (we typically use the SSH protocol)
 3. Create and activate a conda environment with python >= 3.8
 4. cd into the top level `nesta_ds_utils` directory
-5. Run `pip install -e ."[s3,viz,networks,nlp,dev]"` to install the package with the developer requirements
+5. Run `pip install -e ."[dev]"` to install the package with the developer requirements
 6. Run `pre-commit install` to setup pre-commit
 7. Create a new branch corresponding to the issue: `git checkout -b [ISSUE NUMBER]_[BRIEF DESCRIPTION]` (ex: 10_fix_docstrings)
 8. Add new functions to corresponding modules, or new modules if feature doesn't fit within existing modules
