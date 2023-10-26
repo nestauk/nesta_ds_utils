@@ -8,7 +8,10 @@ import boto3
 from moto import mock_s3
 import io
 from nesta_ds_utils.loading_saving import S3
+from shapely.geometry import Point
+import geopandas as gpd
 
+TEST_GEODATAFRAME = gpd.GeoDataFrame({'col1': ['name1', 'name2'], 'geometry': [Point(1, 2), Point(2, 1)]})
 TEST_DATAFRAME = pd.DataFrame({"test": [0, 0]})
 TEST_DICT = {"test": [0, 0]}
 TEST_LIST = [0, "test"]
@@ -36,6 +39,35 @@ def test_upload_obj_dataframe_csv():
     mock_client = boto3.client("s3")
     S3.upload_obj(TEST_DATAFRAME, "test-bucket", "dummy.csv")
 
+@mock_s3
+def test_upload_obj_dataframe_xlsx():
+    """Tests that upload_obj does not return an exeption
+    uploading dataframe as xlsx.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    mock_client = boto3.client("s3")
+    S3.upload_obj(TEST_DATAFRAME, "test-bucket", "dummy.xlsx")
+
+@mock_s3
+def test_upload_obj_dataframe_xlsm():
+    """Tests that upload_obj does not return an exeption
+    uploading dataframe as xlsm.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    mock_client = boto3.client("s3")
+    S3.upload_obj(TEST_DATAFRAME, "test-bucket", "dummy.xlsm")
+
+@mock_s3
+def test_upload_obj_dataframe_geojson():
+    """Tests that upload_obj does not return an exeption
+    uploading dataframe as geojson.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    mock_client = boto3.client("s3")
+    S3.upload_obj(TEST_GEODATAFRAME, "test-bucket", "dummy.geojson")
 
 @mock_s3
 def test_upload_obj_dataframe_parquet():
@@ -150,6 +182,53 @@ def test_dowload_obj_dataframe_csv():
         == 0
     )
 
+@mock_s3
+def test_download_obj_dataframe_xlsx():
+    """Tests that download_obj returns the correct dataframe
+    from xlsx file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    mock_client = boto3.client("s3")
+    mock_client.upload_file(
+        "tests/artifacts/dummy_dataframe.xlsx", "test-bucket", "dummy.xlsx"
+    )
+    assert (
+        S3.download_obj("test-bucket", "dummy.xlsx", download_as="dataframe").test[0]
+        == 0
+    )
+
+@mock_s3
+def test_download_obj_dataframe_xlsm():
+    """Tests that download_obj returns the correct dataframe
+    from xlsm file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    mock_client = boto3.client("s3")
+    mock_client.upload_file(
+        "tests/artifacts/dummy_dataframe.xlsm", "test-bucket", "dummy.xlsm"
+    )
+    assert (
+        S3.download_obj("test-bucket", "dummy.xlsm", download_as="dataframe").test[0]
+        == 0
+    )
+
+@mock_s3
+def test_download_obj_dataframe_geojson():
+    """Tests that download_obj returns the correct dataframe
+    from geojson file.
+    """
+    conn = boto3.resource("s3", region_name="us-east-1")
+    conn.create_bucket(Bucket="test-bucket")
+    mock_client = boto3.client("s3")
+    mock_client.upload_file(
+        "tests/artifacts/dummy_dataframe.geojson", "test-bucket", "dummy.geojson"
+    )
+    assert (
+        S3.download_obj("test-bucket", "dummy.geojson", download_as="dataframe").geometry[0] 
+        == Point(1, 2)
+    )
 
 @mock_s3
 def test_dowload_obj_dataframe_parquet():

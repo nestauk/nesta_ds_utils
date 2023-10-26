@@ -4,6 +4,7 @@ from xmlrpc.client import Boolean
 import boto3
 from fnmatch import fnmatch
 import pandas as pd
+import geopandas as gpd
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -46,9 +47,15 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
         df_data.to_csv(buffer, **kwargs)
     elif fnmatch(path_to, "*.parquet"):
         df_data.to_parquet(buffer, **kwargs)
+    elif fnmatch(path_to, "*.xlsx"):
+        df_data.to_excel(buffer, **kwargs)
+    elif fnmatch(path_to, "*.xlsm"):
+        df_data.to_excel(buffer, **kwargs)
+    elif fnmatch(path_to, "*.geojson"):
+        df_data.to_file(buffer, driver="GeoJSON", **kwargs)
     else:
         raise Exception(
-            "Uploading dataframe currently supported only for 'csv' and 'parquet'."
+            "Uploading dataframe currently supported only for 'csv', 'parquet', 'xlsx', xlsm' and 'geojson'."
         )
     buffer.seek(0)
     return buffer
@@ -215,6 +222,14 @@ def _fileobj_to_df(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFram
         return pd.read_csv(fileobj, **kwargs)
     elif fnmatch(path_from, "*.parquet"):
         return pd.read_parquet(fileobj, **kwargs)
+    elif fnmatch(path_from, "*.xlsx"):
+        return pd.read_excel(fileobj, **kwargs)
+    elif fnmatch(path_from, "*.xlsm"):
+        return pd.read_excel(fileobj, **kwargs)
+    elif fnmatch(path_from, "*.geojson"):
+        return gpd.GeoDataFrame.from_features(
+            json.loads(fileobj.getvalue().decode())["features"]
+        )
 
 
 def _fileobj_to_dict(fileobj: io.BytesIO, path_from: str, **kwargs) -> dict:
@@ -301,7 +316,11 @@ def download_obj(
     Returns:
         any: Donwloaded data.
     """
-    if not path_from.endswith(tuple([".csv", ".parquet", ".json", ".txt", ".pkl"])):
+    if not path_from.endswith(
+        tuple(
+            [".csv", ".parquet", ".json", ".txt", ".pkl", ".geojson", ".xlsx", ".xlsm"]
+        )
+    ):
         raise Exception(
             "This file type is not currently supported for download in memory."
         )
@@ -310,7 +329,9 @@ def download_obj(
     s3.download_fileobj(bucket, path_from, fileobj, **kwargs_boto)
     fileobj.seek(0)
     if download_as == "dataframe":
-        if path_from.endswith(tuple([".csv", ".parquet"])):
+        if path_from.endswith(
+            tuple([".csv", ".parquet", ".xlsx", ".xlsm", ".geojson"])
+        ):
             return _fileobj_to_df(fileobj, path_from, **kwargs_reading)
         else:
             raise Exception(
