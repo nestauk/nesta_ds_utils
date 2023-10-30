@@ -1,6 +1,5 @@
 import io
 from typing import List
-from xmlrpc.client import Boolean
 import boto3
 from fnmatch import fnmatch
 import pandas as pd
@@ -51,11 +50,30 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
         df_data.to_excel(buffer, **kwargs)
     elif fnmatch(path_to, "*.xlsm"):
         df_data.to_excel(buffer, **kwargs)
-    elif fnmatch(path_to, "*.geojson"):
+    else:
+        raise Exception(
+            "Uploading dataframe currently supported only for 'csv', 'parquet', 'xlsx' and xlsm'."
+        )
+    buffer.seek(0)
+    return buffer
+
+
+def _gdf_to_fileobj(df_data: gpd.GeoDataFrame, path_to: str, **kwargs) -> io.BytesIO:
+    """Convert GeoDataFrame into bytes file object.
+
+    Args:
+        df_data (gpd.DataFrame): Dataframe to convert.
+        path_to (str): Saving file name.
+
+    Returns:
+        io.BytesIO: Bytes file object.
+    """
+    buffer = io.BytesIO()
+    if fnmatch(path_to, "*.geojson"):
         df_data.to_file(buffer, driver="GeoJSON", **kwargs)
     else:
         raise Exception(
-            "Uploading dataframe currently supported only for 'csv', 'parquet', 'xlsx', xlsm' and 'geojson'."
+            "Uploading geodataframe currently supported only for 'geojson'."
         )
     buffer.seek(0)
     return buffer
@@ -74,8 +92,30 @@ def _dict_to_fileobj(dict_data: dict, path_to: str, **kwargs) -> io.BytesIO:
     buffer = io.BytesIO()
     if fnmatch(path_to, "*.json"):
         buffer.write(json.dumps(dict_data, **kwargs).encode())
+    elif fnmatch(path_to, "*.geojson"):
+        if "type" in dict_data:
+            if dict_data["type"] in [
+                "Point",
+                "MultiPoint",
+                "LineString",
+                "MultiLineString",
+                "Polygon",
+                "MultiPolygon",
+                "GeometryCollection",
+                "Feature",
+                "FeatureCollection",
+            ]:
+                buffer.write(json.dumps(dict_data, **kwargs).encode())
+            else:
+                raise Exception(
+                    "GeoJSONS must have a member with the name 'type', the value of the member must "
+                    "be one of the following: 'Point', 'MultiPoint', 'LineString', 'MultiLineString',"
+                    "'Polygon', 'MultiPolygon','GeometryCollection', 'Feature' or 'FeatureCollection'."
+                )
     else:
-        raise Exception("Uploading dictionary currently supported only for 'json'.")
+        raise Exception(
+            "Uploading dictionary currently supported only for 'json' and 'geojson'."
+        )
     buffer.seek(0)
     return buffer
 
@@ -187,7 +227,9 @@ def upload_obj(
         kwargs_writing (dict, optional): Dictionary of kwargs for writing data.
 
     """
-    if isinstance(obj, pd.DataFrame):
+    if isinstance(obj, gpd.GeoDataFrame):
+        obj = _gdf_to_fileobj(obj, path_to, **kwargs_writing)
+    elif isinstance(obj, pd.DataFrame):
         obj = _df_to_fileobj(obj, path_to, **kwargs_writing)
     elif isinstance(obj, dict):
         obj = _dict_to_fileobj(obj, path_to, **kwargs_writing)
@@ -201,7 +243,7 @@ def upload_obj(
         obj = _unsupp_data_to_fileobj(obj, path_to, **kwargs_writing)
         warnings.warn(
             "Data uploaded as pickle. Please consider other accessible "
-            "file types among the suppoted ones."
+            "file types among the supported ones."
         )
 
     s3 = boto3.client("s3")
@@ -226,7 +268,19 @@ def _fileobj_to_df(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFram
         return pd.read_excel(fileobj, **kwargs)
     elif fnmatch(path_from, "*.xlsm"):
         return pd.read_excel(fileobj, **kwargs)
-    elif fnmatch(path_from, "*.geojson"):
+
+
+def _fileobj_to_gdf(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFrame:
+    """Convert bytes file object into geodataframe.
+
+    Args:
+        fileobj (io.BytesIO): Bytes file object.
+        path_from (str): Path of loaded data.
+
+    Returns:
+        gpd.DataFrame: Data as geodataframe.
+    """
+    if fnmatch(path_from, "*.geojson"):
         return gpd.GeoDataFrame.from_features(
             json.loads(fileobj.getvalue().decode())["features"]
         )
@@ -309,12 +363,12 @@ def download_obj(
         bucket (str): Bucket's name.
         path_from (str): Path to data in S3.
         download_as (str, optional): Type of object downloading. Choose between
-        ('dataframe', 'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.
+        ('dataframe', 'geodataframe', 'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.
         kwargs_boto (dict, optional): Dictionary of kwargs for boto3 function 'download_fileobj'.
         kwargs_reading (dict, optional): Dictionary of kwargs for reading data.
 
     Returns:
-        any: Donwloaded data.
+        any: Downloaded data.
     """
     if not path_from.endswith(
         tuple(
@@ -329,21 +383,34 @@ def download_obj(
     s3.download_fileobj(bucket, path_from, fileobj, **kwargs_boto)
     fileobj.seek(0)
     if download_as == "dataframe":
-        if path_from.endswith(
-            tuple([".csv", ".parquet", ".xlsx", ".xlsm", ".geojson"])
-        ):
+        if path_from.endswith(tuple([".csv", ".parquet", ".xlsx", ".xlsm"])):
             return _fileobj_to_df(fileobj, path_from, **kwargs_reading)
         else:
             raise Exception(
                 "Download as dataframe currently supported only "
-                "for 'csv' and 'parquet'."
+                "for 'csv','parquet','xlsx' and 'xlsm'."
+            )
+    elif download_as == "geodataframe":
+        if path_from.endswith(tuple([".geojson"])):
+            return _fileobj_to_gdf(fileobj, path_from, **kwargs_reading)
+        else:
+            raise Exception(
+                "Download as geodataframe currently supported only " "for 'geojson'."
             )
     elif download_as == "dict":
         if path_from.endswith(tuple([".json"])):
             return _fileobj_to_dict(fileobj, path_from, **kwargs_reading)
+        elif path_from.endswith(tuple([".geojson"])):
+            warnings.warn(
+                "Please check geojson has a member with the name 'type', the value of the member must be one of the following:"
+                "'Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon', 'GeometryCollection',"
+                "'Feature' and 'FeatureCollection'. Else downloaded dictionary will not be valid geojson."
+            )
+            return _fileobj_to_dict(fileobj, path_from, **kwargs_reading)
         else:
             raise Exception(
-                "Download as dictionary currently supported only " "for 'json'."
+                "Download as dictionary currently supported only "
+                "for 'json' and 'geojson'."
             )
     elif download_as == "list":
         if path_from.endswith(tuple([".csv", ".txt", ".json"])):
