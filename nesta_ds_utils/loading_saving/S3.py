@@ -51,7 +51,7 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
     elif fnmatch(path_to, "*.xlsm"):
         df_data.to_excel(buffer, **kwargs)
     else:
-        raise Exception(
+        raise NotImplementedError(
             "Uploading dataframe currently supported only for 'csv', 'parquet', 'xlsx' and xlsm'."
         )
     buffer.seek(0)
@@ -72,7 +72,7 @@ def _gdf_to_fileobj(df_data: gpd.GeoDataFrame, path_to: str, **kwargs) -> io.Byt
     if fnmatch(path_to, "*.geojson"):
         df_data.to_file(buffer, driver="GeoJSON", **kwargs)
     else:
-        raise Exception(
+        raise NotImplementedError(
             "Uploading geodataframe currently supported only for 'geojson'."
         )
     buffer.seek(0)
@@ -107,13 +107,13 @@ def _dict_to_fileobj(dict_data: dict, path_to: str, **kwargs) -> io.BytesIO:
             ]:
                 buffer.write(json.dumps(dict_data, **kwargs).encode())
             else:
-                raise Exception(
+                raise AttributeError(
                     "GeoJSONS must have a member with the name 'type', the value of the member must "
                     "be one of the following: 'Point', 'MultiPoint', 'LineString', 'MultiLineString',"
                     "'Polygon', 'MultiPolygon','GeometryCollection', 'Feature' or 'FeatureCollection'."
                 )
     else:
-        raise Exception(
+        raise NotImplementedError(
             "Uploading dictionary currently supported only for 'json' and 'geojson'."
         )
     buffer.seek(0)
@@ -139,7 +139,7 @@ def _list_to_fileobj(list_data: list, path_to: str, **kwargs) -> io.BytesIO:
     elif fnmatch(path_to, "*.json"):
         buffer.write(json.dumps(list_data, **kwargs).encode())
     else:
-        raise Exception(
+        raise NotImplementedError(
             "Uploading list currently supported only for 'csv', 'txt' and 'json'."
         )
     buffer.seek(0)
@@ -408,7 +408,7 @@ def download_obj(
             )
             return _fileobj_to_dict(fileobj, path_from, **kwargs_reading)
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "Download as dictionary currently supported only "
                 "for 'json' and 'geojson'."
             )
@@ -416,7 +416,7 @@ def download_obj(
         if path_from.endswith(tuple([".csv", ".txt", ".json"])):
             return _fileobj_to_list(fileobj, path_from, **kwargs_reading)
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "Download as list currently supported only "
                 "for 'csv', 'txt' and 'json'."
             )
