@@ -159,7 +159,9 @@ def _str_to_fileobj(str_data: str, path_to: str, **kwargs) -> io.BytesIO:
     if fnmatch(path_to, "*.txt"):
         buffer = io.BytesIO(bytes(str_data.encode("utf-8")))
     else:
-        raise Exception("Uploading string currently supported only for 'txt'.")
+        raise NotImplementedError(
+            "Uploading string currently supported only for 'txt'."
+        )
     buffer.seek(0)
     return buffer
 
@@ -182,7 +184,7 @@ def _np_array_to_fileobj(
     elif fnmatch(path_to, "*.parquet"):
         pq.write_table(pa.table({"data": np_array_data}), buffer, **kwargs)
     else:
-        raise Exception(
+        raise NotImplementedError(
             "Uploading numpy array currently supported only for 'csv' and 'parquet."
         )
     buffer.seek(0)
@@ -203,7 +205,7 @@ def _unsupp_data_to_fileobj(data: any, path_to: str, **kwargs) -> io.BytesIO:
     if fnmatch(path_to, "*.pkl"):
         pickle.dump(data, buffer, **kwargs)
     else:
-        raise Exception(
+        raise NotImplementedError(
             "This file type is not supported for this data. Use 'pkl' instead."
         )
     buffer.seek(0)
@@ -375,7 +377,7 @@ def download_obj(
             [".csv", ".parquet", ".json", ".txt", ".pkl", ".geojson", ".xlsx", ".xlsm"]
         )
     ):
-        raise Exception(
+        raise NotImplementedError(
             "This file type is not currently supported for download in memory."
         )
     s3 = boto3.client("s3")
@@ -386,7 +388,7 @@ def download_obj(
         if path_from.endswith(tuple([".csv", ".parquet", ".xlsx", ".xlsm"])):
             return _fileobj_to_df(fileobj, path_from, **kwargs_reading)
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "Download as dataframe currently supported only "
                 "for 'csv','parquet','xlsx' and 'xlsm'."
             )
@@ -394,7 +396,7 @@ def download_obj(
         if path_from.endswith(tuple([".geojson"])):
             return _fileobj_to_gdf(fileobj, path_from, **kwargs_reading)
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "Download as geodataframe currently supported only " "for 'geojson'."
             )
     elif download_as == "dict":
@@ -424,12 +426,14 @@ def download_obj(
         if path_from.endswith(tuple([".txt"])):
             return _fileobj_to_str(fileobj)
         else:
-            raise Exception("Download as string currently supported only " "for 'txt'.")
+            raise NotImplementedError(
+                "Download as string currently supported only " "for 'txt'."
+            )
     elif download_as == "np.array":
         if path_from.endswith(tuple([".csv", ".parquet"])):
             return _fileobj_to_np_array(fileobj, path_from, **kwargs_reading)
         else:
-            raise Exception(
+            raise NotImplementedError(
                 "Download as numpy array currently supported only "
                 "for 'csv' and 'parquet'."
             )
@@ -437,9 +441,9 @@ def download_obj(
         if path_from.endswith(tuple([".pkl"])):
             return pickle.load(fileobj, **kwargs_reading)
         else:
-            raise Exception("'download_as' is required for this file type.")
+            raise ValueError("'download_as' is required for this file type.")
     else:
-        raise Exception(
+        raise ValueError(
             "'download_as' not provided. Choose between ('dataframe', "
             "'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.'"
         )
