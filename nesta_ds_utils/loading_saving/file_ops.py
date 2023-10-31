@@ -1,9 +1,7 @@
 from typing import Union
 from pathlib import Path
-from xmlrpc.client import Boolean
 import zipfile
 import os
-from fnmatch import fnmatch
 
 
 def _convert_str_to_pathlib_path(path: Union[Path, str]) -> Path:
@@ -32,7 +30,7 @@ def make_path_if_not_exist(path: Union[Path, str]):
 def extractall(
     zip_path: Union[Path, str],
     out_path: Union[Path, str] = None,
-    delete_zip: Boolean = True,
+    delete_zip: bool = True,
 ):
     """Takes path to zipped file and extracts it to specified output path.
 
