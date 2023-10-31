@@ -229,7 +229,7 @@ def upload_obj(
         kwargs_writing (dict, optional): Dictionary of kwargs for writing data.
 
     """
-    if isinstance(obj, gpd.GeoDataFrame):
+    if isinstance(obj, gpd.base.GeoPandasBase):
         obj = _gdf_to_fileobj(obj, path_to, **kwargs_writing)
     elif isinstance(obj, pd.DataFrame):
         obj = _df_to_fileobj(obj, path_to, **kwargs_writing)
