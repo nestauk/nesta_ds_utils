@@ -444,7 +444,7 @@ def download_obj(
             )
     else:
         raise ValueError(
-            "'download_as' not provided. Choose between ('dataframe', "
+            "'download_as' not provided. Choose between ('dataframe', 'geodf', "
             "'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.'"
         )
 
