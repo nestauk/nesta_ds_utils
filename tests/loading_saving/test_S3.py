@@ -240,7 +240,7 @@ def test_download_obj_dataframe_geojson():
         "tests/artifacts/dummy_dataframe.geojson", "test-bucket", "dummy.geojson"
     )
     assert (
-        S3.download_obj("test-bucket", "dummy.geojson", download_as="geodataframe").geometry[0] 
+        S3.download_obj("test-bucket", "dummy.geojson", download_as="geodf").geometry[0] 
         == Point(1, 2)
     )
 
