@@ -365,7 +365,7 @@ def download_obj(
         bucket (str): Bucket's name.
         path_from (str): Path to data in S3.
         download_as (str, optional): Type of object downloading. Choose between
-        ('dataframe', 'geodataframe', 'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.
+        ('dataframe', 'geodf', 'dict', 'list', 'str', 'np.array'). Not needed for 'pkl files'.
         kwargs_boto (dict, optional): Dictionary of kwargs for boto3 function 'download_fileobj'.
         kwargs_reading (dict, optional): Dictionary of kwargs for reading data.
 
@@ -384,7 +384,12 @@ def download_obj(
     fileobj = io.BytesIO()
     s3.download_fileobj(bucket, path_from, fileobj, **kwargs_boto)
     fileobj.seek(0)
-    if download_as == "dataframe":
+    if not download_as:
+        if path_from.endswith(tuple([".pkl"])):
+            return pickle.load(fileobj, **kwargs_reading)
+        else:
+            raise ValueError("'download_as' is required for this file type.")
+    elif download_as == "dataframe":
         if path_from.endswith(tuple([".csv", ".parquet", ".xlsx", ".xlsm"])):
             return _fileobj_to_df(fileobj, path_from, **kwargs_reading)
         else:
@@ -392,7 +397,7 @@ def download_obj(
                 "Download as dataframe currently supported only "
                 "for 'csv','parquet','xlsx' and 'xlsm'."
             )
-    elif download_as == "geodataframe":
+    elif download_as == "geodf":
         if path_from.endswith(tuple([".geojson"])):
             return _fileobj_to_gdf(fileobj, path_from, **kwargs_reading)
         else:
@@ -437,11 +442,6 @@ def download_obj(
                 "Download as numpy array currently supported only "
                 "for 'csv' and 'parquet'."
             )
-    elif not download_as:
-        if path_from.endswith(tuple([".pkl"])):
-            return pickle.load(fileobj, **kwargs_reading)
-        else:
-            raise ValueError("'download_as' is required for this file type.")
     else:
         raise ValueError(
             "'download_as' not provided. Choose between ('dataframe', "
