@@ -37,10 +37,10 @@
   <h1>Source code for nesta_ds_utils.loading_saving.S3</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">xmlrpc.client</span> <span class="kn">import</span> <span class="n">Boolean</span>
 <span class="kn">import</span> <span class="nn">boto3</span>
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
 <span class="kn">import</span> <span class="nn">pyarrow.parquet</span> <span class="k">as</span> <span class="nn">pq</span>
@@ -83,9 +83,34 @@
         <span class="n">df_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
         <span class="n">df_data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.xlsx&quot;</span><span class="p">):</span>
+        <span class="n">df_data</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.xlsm&quot;</span><span class="p">):</span>
+        <span class="n">df_data</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-            <span class="s2">&quot;Uploading dataframe currently supported only for &#39;csv&#39; and &#39;parquet&#39;.&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading dataframe currently supported only for &#39;csv&#39;, &#39;parquet&#39;, &#39;xlsx&#39; and xlsm&#39;.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">buffer</span>
+
+
+<span class="k">def</span> <span class="nf">_gdf_to_fileobj</span><span class="p">(</span><span class="n">df_data</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert GeoDataFrame into bytes file object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df_data (gpd.DataFrame): Dataframe to convert.</span>
+<span class="sd">        path_to (str): Saving file name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        io.BytesIO: Bytes file object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">):</span>
+        <span class="n">df_data</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;GeoJSON&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading geodataframe currently supported only for &#39;geojson&#39;.&quot;</span>
         <span class="p">)</span>
     <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">buffer</span>
@@ -104,8 +129,30 @@
     <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.json&quot;</span><span class="p">):</span>
         <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">dict_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dict_data</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MultiPoint&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;LineString&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MultiLineString&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;GeometryCollection&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">dict_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="s2">&quot;GeoJSONS must have a member with the name &#39;type&#39;, the value of the member must &quot;</span>
+                    <span class="s2">&quot;be one of the following: &#39;Point&#39;, &#39;MultiPoint&#39;, &#39;LineString&#39;, &#39;MultiLineString&#39;,&quot;</span>
+                    <span class="s2">&quot;&#39;Polygon&#39;, &#39;MultiPolygon&#39;,&#39;GeometryCollection&#39;, &#39;Feature&#39; or &#39;FeatureCollection&#39;.&quot;</span>
+                <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Uploading dictionary currently supported only for &#39;json&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading dictionary currently supported only for &#39;json&#39; and &#39;geojson&#39;.&quot;</span>
+        <span class="p">)</span>
     <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">buffer</span>
 
@@ -129,7 +176,7 @@
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.json&quot;</span><span class="p">):</span>
         <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">list_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;Uploading list currently supported only for &#39;csv&#39;, &#39;txt&#39; and &#39;json&#39;.&quot;</span>
         <span class="p">)</span>
     <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -149,7 +196,9 @@
     <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.txt&quot;</span><span class="p">):</span>
         <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">str_data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Uploading string currently supported only for &#39;txt&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">&quot;Uploading string currently supported only for &#39;txt&#39;.&quot;</span>
+        <span class="p">)</span>
     <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">buffer</span>
 
@@ -172,7 +221,7 @@
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
         <span class="n">pq</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">table</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">np_array_data</span><span class="p">}),</span> <span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;Uploading numpy array currently supported only for &#39;csv&#39; and &#39;parquet.&quot;</span>
         <span class="p">)</span>
     <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -193,7 +242,7 @@
     <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.pkl&quot;</span><span class="p">):</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;This file type is not supported for this data. Use &#39;pkl&#39; instead.&quot;</span>
         <span class="p">)</span>
     <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -217,7 +266,9 @@
 <span class="sd">        kwargs_writing (dict, optional): Dictionary of kwargs for writing data.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">GeoPandasBase</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">_gdf_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">_df_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">_dict_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
@@ -231,7 +282,7 @@
         <span class="n">obj</span> <span class="o">=</span> <span class="n">_unsupp_data_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;Data uploaded as pickle. Please consider other accessible &quot;</span>
-            <span class="s2">&quot;file types among the suppoted ones.&quot;</span>
+            <span class="s2">&quot;file types among the supported ones.&quot;</span>
         <span class="p">)</span>
 
     <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
@@ -252,6 +303,26 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.xlsx&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.xlsm&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_fileobj_to_gdf</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bytes file object into geodataframe.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fileobj (io.BytesIO): Bytes file object.</span>
+<span class="sd">        path_from (str): Path of loaded data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        gpd.DataFrame: Data as geodataframe.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">fileobj</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_fileobj_to_dict</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -331,41 +402,65 @@
 <span class="sd">        bucket (str): Bucket&#39;s name.</span>
 <span class="sd">        path_from (str): Path to data in S3.</span>
 <span class="sd">        download_as (str, optional): Type of object downloading. Choose between</span>
-<span class="sd">        (&#39;dataframe&#39;, &#39;dict&#39;, &#39;list&#39;, &#39;str&#39;, &#39;np.array&#39;). Not needed for &#39;pkl files&#39;.</span>
+<span class="sd">        (&#39;dataframe&#39;, &#39;geodf&#39;, &#39;dict&#39;, &#39;list&#39;, &#39;str&#39;, &#39;np.array&#39;). Not needed for &#39;pkl files&#39;.</span>
 <span class="sd">        kwargs_boto (dict, optional): Dictionary of kwargs for boto3 function &#39;download_fileobj&#39;.</span>
 <span class="sd">        kwargs_reading (dict, optional): Dictionary of kwargs for reading data.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        any: Donwloaded data.</span>
+<span class="sd">        any: Downloaded data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;.pkl&quot;</span><span class="p">])):</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span>
+        <span class="nb">tuple</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;.geojson&quot;</span><span class="p">,</span> <span class="s2">&quot;.xlsx&quot;</span><span class="p">,</span> <span class="s2">&quot;.xlsm&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;This file type is not currently supported for download in memory.&quot;</span>
         <span class="p">)</span>
     <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
     <span class="n">fileobj</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
     <span class="n">s3</span><span class="o">.</span><span class="n">download_fileobj</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_boto</span><span class="p">)</span>
     <span class="n">fileobj</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">])):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">download_as</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.pkl&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;download_as&#39; is required for this file type.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;dataframe&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;.xlsx&quot;</span><span class="p">,</span> <span class="s2">&quot;.xlsm&quot;</span><span class="p">])):</span>
             <span class="k">return</span> <span class="n">_fileobj_to_df</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Download as dataframe currently supported only &quot;</span>
-                <span class="s2">&quot;for &#39;csv&#39; and &#39;parquet&#39;.&quot;</span>
+                <span class="s2">&quot;for &#39;csv&#39;,&#39;parquet&#39;,&#39;xlsx&#39; and &#39;xlsm&#39;.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;geodf&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.geojson&quot;</span><span class="p">])):</span>
+            <span class="k">return</span> <span class="n">_fileobj_to_gdf</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Download as geodataframe currently supported only &quot;</span> <span class="s2">&quot;for &#39;geojson&#39;.&quot;</span>
             <span class="p">)</span>
     <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;dict&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.json&quot;</span><span class="p">])):</span>
             <span class="k">return</span> <span class="n">_fileobj_to_dict</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.geojson&quot;</span><span class="p">])):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Please check geojson has a member with the name &#39;type&#39;, the value of the member must be one of the following:&quot;</span>
+                <span class="s2">&quot;&#39;Point&#39;, &#39;MultiPoint&#39;, &#39;LineString&#39;, &#39;MultiLineString&#39;, &#39;Polygon&#39;, &#39;MultiPolygon&#39;, &#39;GeometryCollection&#39;,&quot;</span>
+                <span class="s2">&quot;&#39;Feature&#39; and &#39;FeatureCollection&#39;. Else downloaded dictionary will not be valid geojson.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">_fileobj_to_dict</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-                <span class="s2">&quot;Download as dictionary currently supported only &quot;</span> <span class="s2">&quot;for &#39;json&#39;.&quot;</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Download as dictionary currently supported only &quot;</span>
+                <span class="s2">&quot;for &#39;json&#39; and &#39;geojson&#39;.&quot;</span>
             <span class="p">)</span>
     <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">])):</span>
             <span class="k">return</span> <span class="n">_fileobj_to_list</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Download as list currently supported only &quot;</span>
                 <span class="s2">&quot;for &#39;csv&#39;, &#39;txt&#39; and &#39;json&#39;.&quot;</span>
             <span class="p">)</span>
@@ -373,23 +468,20 @@
         <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.txt&quot;</span><span class="p">])):</span>
             <span class="k">return</span> <span class="n">_fileobj_to_str</span><span class="p">(</span><span class="n">fileobj</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Download as string currently supported only &quot;</span> <span class="s2">&quot;for &#39;txt&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Download as string currently supported only &quot;</span> <span class="s2">&quot;for &#39;txt&#39;.&quot;</span>
+            <span class="p">)</span>
     <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;np.array&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.parquet&quot;</span><span class="p">])):</span>
             <span class="k">return</span> <span class="n">_fileobj_to_np_array</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Download as numpy array currently supported only &quot;</span>
                 <span class="s2">&quot;for &#39;csv&#39; and &#39;parquet&#39;.&quot;</span>
             <span class="p">)</span>
-    <span class="k">elif</span> <span class="ow">not</span> <span class="n">download_as</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.pkl&quot;</span><span class="p">])):</span>
-            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;&#39;download_as&#39; is required for this file type.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
-            <span class="s2">&quot;&#39;download_as&#39; not provided. Choose between (&#39;dataframe&#39;, &quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;&#39;download_as&#39; not provided. Choose between (&#39;dataframe&#39;, &#39;geodf&#39;, &quot;</span>
             <span class="s2">&quot;&#39;dict&#39;, &#39;list&#39;, &#39;str&#39;, &#39;np.array&#39;). Not needed for &#39;pkl files&#39;.&#39;&quot;</span>
         <span class="p">)</span></div>
 
