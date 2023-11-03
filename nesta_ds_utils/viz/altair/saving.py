@@ -3,7 +3,7 @@ Module containing utils for styling and exporting figures using Altair.
 """
 
 import altair_saver as alt_saver
-from altair.vegalite.v4.api import Chart
+from altair.vegalite import Chart
 import altair as alt
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
