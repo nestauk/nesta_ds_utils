@@ -40,7 +40,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">altair_saver</span> <span class="k">as</span> <span class="nn">alt_saver</span>
-<span class="kn">from</span> <span class="nn">altair.vegalite.v4.api</span> <span class="kn">import</span> <span class="n">Chart</span>
+<span class="kn">from</span> <span class="nn">altair.vegalite</span> <span class="kn">import</span> <span class="n">Chart</span>
 <span class="kn">import</span> <span class="nn">altair</span> <span class="k">as</span> <span class="nn">alt</span>
 <span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
 <span class="kn">from</span> <span class="nn">webdriver_manager.chrome</span> <span class="kn">import</span> <span class="n">ChromeDriverManager</span>
@@ -183,7 +183,7 @@
 <span class="k">def</span> <span class="nf">_load_nesta_theme</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Define Nesta&#39;s styling theme using format expected by altair.&quot;&quot;&quot;</span>
     <span class="n">font</span> <span class="o">=</span> <span class="n">_find_averta</span><span class="p">()</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;nesta_ds_utils/themes/nesta_theme_&quot;</span> <span class="o">+</span> <span class="n">font</span> <span class="o">+</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;nesta_ds_utils/viz/themes/nesta_theme_&quot;</span> <span class="o">+</span> <span class="n">font</span> <span class="o">+</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">config</span>
 
