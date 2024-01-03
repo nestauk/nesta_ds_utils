@@ -3,7 +3,7 @@ Module containing utils for styling and exporting figures using Altair.
 """
 
 import altair_saver as alt_saver
-from altair.vegalite.v4.api import Chart
+from altair.vegalite import Chart
 import altair as alt
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -146,7 +146,7 @@ def _find_averta() -> str:
 def _load_nesta_theme() -> dict:
     """Define Nesta's styling theme using format expected by altair."""
     font = _find_averta()
-    with open("nesta_ds_utils/themes/nesta_theme_" + font + ".yaml", "r") as stream:
+    with open("nesta_ds_utils/viz/themes/nesta_theme_" + font + ".yaml", "r") as stream:
         config = yaml.safe_load(stream)
     return config
 
