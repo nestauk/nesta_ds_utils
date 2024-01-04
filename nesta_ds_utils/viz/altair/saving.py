@@ -14,6 +14,7 @@ from matplotlib import font_manager
 from pathlib import Path
 from nesta_ds_utils.loading_saving import file_ops
 import yaml
+from contextlib import contextmanager
 
 
 def _google_chrome_driver_setup() -> WebDriver:
@@ -23,6 +24,15 @@ def _google_chrome_driver_setup() -> WebDriver:
     chrome_options.add_argument("--headless=new")
     driver = Chrome(service=service, options=chrome_options)
     return driver
+
+
+@contextmanager
+def webdriver_context(driver: WebDriver = None):
+    try:
+        driver = _google_chrome_driver_setup() if driver is None else driver
+        yield driver
+    finally:
+        driver.quit()
 
 
 def _save_png(
