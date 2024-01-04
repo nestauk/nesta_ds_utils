@@ -5,10 +5,9 @@ Module containing utils for styling and exporting figures using Altair.
 import altair_saver as alt_saver
 from altair.vegalite import Chart
 import altair as alt
-from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver import Chrome, ChromeOptions, ChromeService
 import os
 from typing import Union, List, Type
 import warnings
@@ -20,11 +19,10 @@ import yaml
 
 def _google_chrome_driver_setup() -> WebDriver:
     """Set up the driver to save figures"""
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(
-        ChromeDriverManager().install(), chrome_options=chrome_options
-    )
+    service = ChromeService(ChromeDriverManager().install())
+    chrome_options = ChromeOptions()
+    chrome_options.add_argument("--headless=new")
+    driver = Chrome(service=service, options=chrome_options)
     return driver
 
 
