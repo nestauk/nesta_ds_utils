@@ -116,19 +116,18 @@ def save(
 
     path = file_ops._convert_str_to_pathlib_path(path)
     file_ops.make_path_if_not_exist(path)
-    if save_png or save_svg:
-        driver = _google_chrome_driver_setup() if driver is None else driver
 
-    file_ops.make_path_if_not_exist(path)
-    # Export figures
-    if save_png:
-        _save_png(fig, path, name, scale_factor, driver)
+    if save_png or save_svg:
+        with webdriver_context(driver):
+            # Export figures
+            if save_png:
+                _save_png(fig, path, name, scale_factor, driver)
+
+            if save_svg:
+                _save_svg(fig, path, name, scale_factor, driver)
 
     if save_html:
         _save_html(fig, path, name, scale_factor)
-
-    if save_svg:
-        _save_svg(fig, path, name, scale_factor, driver)
 
 
 def _find_averta() -> str:
