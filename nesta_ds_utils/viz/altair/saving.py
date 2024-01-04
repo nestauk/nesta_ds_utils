@@ -28,6 +28,21 @@ def _google_chrome_driver_setup() -> WebDriver:
 
 @contextmanager
 def webdriver_context(driver: WebDriver = None):
+    """Context Manager for Selenium WebDrivers.
+    Optionally pass in user-instantiated Selenium Webdriver.
+    Defaults to setup and yield a ChromeWebDriver.
+
+    Typical usage:
+
+        with webdriver_context(webdriver or None) as driver:
+            # Do stuff with driver, driver.quit() is then called automatically
+
+    Args:
+        driver (WebDriver, optional): Webdriver to use. Defaults to 'webdriver.Chrome'.
+
+    Yields:
+        WebDriver: The optional user-instantiated Selenium WebDriver or a Selenium ChromeWebDriver.
+    """
     try:
         driver = _google_chrome_driver_setup() if driver is None else driver
         yield driver
