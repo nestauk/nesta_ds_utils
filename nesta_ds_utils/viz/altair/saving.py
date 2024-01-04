@@ -2,7 +2,6 @@
 Module containing utils for styling and exporting figures using Altair.
 """
 
-import altair_saver as alt_saver
 from altair.vegalite import Chart
 import altair as alt
 from webdriver_manager.chrome import ChromeDriverManager
@@ -38,8 +37,7 @@ def _save_png(
         scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
     """
-    alt_saver.save(
-        fig,
+    fig.save(
         f"{path}/{name}.png",
         method="selenium",
         webdriver=driver,
@@ -71,8 +69,7 @@ def _save_svg(
         scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
     """
-    alt_saver.save(
-        fig,
+    fig.save(
         f"{path}/{name}.svg",
         method="selenium",
         scale_factor=scale_factor,
