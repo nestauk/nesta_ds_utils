@@ -99,13 +99,13 @@ def save(
         save_svg (bool, optional): Option to save figure as 'svg'. Default to False.
         scale_factor (int, optional): Saving scale factor. Default to 5.
     """
-    path = file_ops._convert_str_to_pathlib_path(path)
-
     if not any([save_png, save_html, save_svg]):
         raise Exception(
             "At least one format needs to be selected. Example: save(.., save_png=True)."
         )
 
+    path = file_ops._convert_str_to_pathlib_path(path)
+    file_ops.make_path_if_not_exist(path)
     if save_png or save_svg:
         driver = _google_chrome_driver_setup() if driver is None else driver
 
