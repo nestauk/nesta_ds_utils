@@ -40,7 +40,6 @@
 <span class="kn">import</span> <span class="nn">boto3</span>
 <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
 <span class="kn">import</span> <span class="nn">pyarrow.parquet</span> <span class="k">as</span> <span class="nn">pq</span>
@@ -48,6 +47,14 @@
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving</span> <span class="kn">import</span> <span class="n">file_ops</span>
+
+<span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving.gis_interface</span> <span class="kn">import</span> <span class="n">_gis_enabled</span>
+
+<span class="k">if</span> <span class="n">_gis_enabled</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving.gis_interface</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="n">_gdf_to_fileobj</span><span class="p">,</span>
+        <span class="n">_fileobj_to_gdf</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">get_bucket_filenames_s3</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dir_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -90,27 +97,6 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;Uploading dataframe currently supported only for &#39;csv&#39;, &#39;parquet&#39;, &#39;xlsx&#39; and xlsm&#39;.&quot;</span>
-        <span class="p">)</span>
-    <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">buffer</span>
-
-
-<span class="k">def</span> <span class="nf">_gdf_to_fileobj</span><span class="p">(</span><span class="n">df_data</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">path_to</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert GeoDataFrame into bytes file object.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        df_data (gpd.DataFrame): Dataframe to convert.</span>
-<span class="sd">        path_to (str): Saving file name.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        io.BytesIO: Bytes file object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">):</span>
-        <span class="n">df_data</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;GeoJSON&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Uploading geodataframe currently supported only for &#39;geojson&#39;.&quot;</span>
         <span class="p">)</span>
     <span class="n">buffer</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">buffer</span>
@@ -266,10 +252,16 @@
 <span class="sd">        kwargs_writing (dict, optional): Dictionary of kwargs for writing data.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">GeoPandasBase</span><span class="p">):</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">_gdf_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">_df_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_gis_enabled</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">_gdf_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+                    <span class="s2">&quot;Please install &#39;gis&#39; extra from nesta_ds_utils or &#39;geopandas&#39; to upload geodataframes.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">_df_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="n">_dict_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -307,22 +299,6 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.xlsm&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_fileobj_to_gdf</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert bytes file object into geodataframe.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        fileobj (io.BytesIO): Bytes file object.</span>
-<span class="sd">        path_from (str): Path of loaded data.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        gpd.DataFrame: Data as geodataframe.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span>
-            <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">fileobj</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_fileobj_to_dict</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -436,7 +412,12 @@
             <span class="p">)</span>
     <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;geodf&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.geojson&quot;</span><span class="p">])):</span>
-            <span class="k">return</span> <span class="n">_fileobj_to_gdf</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_gis_enabled</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_fileobj_to_gdf</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+                    <span class="s2">&quot;Please install &#39;gis&#39; extra from nesta_ds_utils or &#39;geopandas&#39; to download geodataframes.&quot;</span>
+                <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Download as geodataframe currently supported only &quot;</span> <span class="s2">&quot;for &#39;geojson&#39;.&quot;</span>
