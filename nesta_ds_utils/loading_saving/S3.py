@@ -3,7 +3,6 @@ from typing import List
 import boto3
 from fnmatch import fnmatch
 import pandas as pd
-import geopandas as gpd
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -11,6 +10,14 @@ import json
 import pickle
 import warnings
 from nesta_ds_utils.loading_saving import file_ops
+
+from nesta_ds_utils.loading_saving.gis_interface import _gis_enabled
+
+if _gis_enabled:
+    from nesta_ds_utils.loading_saving.gis_interface import (
+        _gdf_to_fileobj,
+        _fileobj_to_gdf,
+    )
 
 
 def get_bucket_filenames_s3(bucket_name: str, dir_name: str = "") -> List[str]:
@@ -53,27 +60,6 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
     else:
         raise NotImplementedError(
             "Uploading dataframe currently supported only for 'csv', 'parquet', 'xlsx' and xlsm'."
-        )
-    buffer.seek(0)
-    return buffer
-
-
-def _gdf_to_fileobj(df_data: gpd.GeoDataFrame, path_to: str, **kwargs) -> io.BytesIO:
-    """Convert GeoDataFrame into bytes file object.
-
-    Args:
-        df_data (gpd.DataFrame): Dataframe to convert.
-        path_to (str): Saving file name.
-
-    Returns:
-        io.BytesIO: Bytes file object.
-    """
-    buffer = io.BytesIO()
-    if fnmatch(path_to, "*.geojson"):
-        df_data.to_file(buffer, driver="GeoJSON", **kwargs)
-    else:
-        raise NotImplementedError(
-            "Uploading geodataframe currently supported only for 'geojson'."
         )
     buffer.seek(0)
     return buffer
@@ -229,10 +215,16 @@ def upload_obj(
         kwargs_writing (dict, optional): Dictionary of kwargs for writing data.
 
     """
-    if isinstance(obj, gpd.base.GeoPandasBase):
-        obj = _gdf_to_fileobj(obj, path_to, **kwargs_writing)
-    elif isinstance(obj, pd.DataFrame):
-        obj = _df_to_fileobj(obj, path_to, **kwargs_writing)
+    if isinstance(obj, pd.DataFrame):
+        if type(obj).__name__ == "GeoDataFrame":
+            if _gis_enabled:
+                obj = _gdf_to_fileobj(obj, path_to, **kwargs_writing)
+            else:
+                raise ModuleNotFoundError(
+                    "Please install 'gis' extra from nesta_ds_utils or 'geopandas' to upload geodataframes."
+                )
+        else:
+            obj = _df_to_fileobj(obj, path_to, **kwargs_writing)
     elif isinstance(obj, dict):
         obj = _dict_to_fileobj(obj, path_to, **kwargs_writing)
     elif isinstance(obj, list):
@@ -270,22 +262,6 @@ def _fileobj_to_df(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFram
         return pd.read_excel(fileobj, **kwargs)
     elif fnmatch(path_from, "*.xlsm"):
         return pd.read_excel(fileobj, **kwargs)
-
-
-def _fileobj_to_gdf(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFrame:
-    """Convert bytes file object into geodataframe.
-
-    Args:
-        fileobj (io.BytesIO): Bytes file object.
-        path_from (str): Path of loaded data.
-
-    Returns:
-        gpd.DataFrame: Data as geodataframe.
-    """
-    if fnmatch(path_from, "*.geojson"):
-        return gpd.GeoDataFrame.from_features(
-            json.loads(fileobj.getvalue().decode())["features"]
-        )
 
 
 def _fileobj_to_dict(fileobj: io.BytesIO, path_from: str, **kwargs) -> dict:
@@ -399,7 +375,12 @@ def download_obj(
             )
     elif download_as == "geodf":
         if path_from.endswith(tuple([".geojson"])):
-            return _fileobj_to_gdf(fileobj, path_from, **kwargs_reading)
+            if _gis_enabled:
+                return _fileobj_to_gdf(fileobj, path_from, **kwargs_reading)
+            else:
+                raise ModuleNotFoundError(
+                    "Please install 'gis' extra from nesta_ds_utils or 'geopandas' to download geodataframes."
+                )
         else:
             raise NotImplementedError(
                 "Download as geodataframe currently supported only " "for 'geojson'."
