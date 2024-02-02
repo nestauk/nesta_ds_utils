@@ -51,13 +51,17 @@ def webdriver_context(driver: WebDriver = None):
 
 
 def _save_png(
-    fig: Chart, path: os.PathLike, name: str, scale_factor: int, driver: WebDriver
+    fig: Chart,
+    path: Union[os.PathLike, Path, str],
+    name: str,
+    scale_factor: int,
+    driver: WebDriver,
 ):
     """Save altair chart as a  raster png file.
 
     Args:
         fig: Altair chart.
-        path (os.PathLike): Path where to save the figure.
+        path (Union[os.PathLike, Path, str]): Path where to save the figure.
         name (str): Name of figure.
         scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
@@ -70,12 +74,14 @@ def _save_png(
     )
 
 
-def _save_html(fig: Chart, path: os.PathLike, name: str, scale_factor: int):
+def _save_html(
+    fig: Chart, path: Union[os.PathLike, Path, str], name: str, scale_factor: int
+):
     """Save altair chart as a html file.
 
     Args:
         fig: Altair chart.
-        path (os.PathLike): Path where to save the figure.
+        path (Union[os.PathLike, Path, str]): Path where to save the figure.
         name (str): Name of figure.
         scale_factor (int): Saving scale factor.
     """
@@ -83,13 +89,17 @@ def _save_html(fig: Chart, path: os.PathLike, name: str, scale_factor: int):
 
 
 def _save_svg(
-    fig: Chart, path: os.PathLike, name: str, scale_factor: int, driver: WebDriver
+    fig: Chart,
+    path: Union[os.PathLike, Path, str],
+    name: str,
+    scale_factor: int,
+    driver: WebDriver,
 ):
     """Save altair chart as vector svg file.
 
     Args:
         fig: Altair chart.
-        path (os.PathLike): Path where to save the figure.
+        path (Union[os.PathLike, Path, str]): Path where to save the figure.
         name (str): Name of figure.
         scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
