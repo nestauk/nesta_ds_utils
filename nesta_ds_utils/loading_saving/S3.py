@@ -12,6 +12,7 @@ import warnings
 from nesta_ds_utils.loading_saving import file_ops
 
 from nesta_ds_utils.loading_saving.gis_interface import _gis_enabled
+from nesta_ds_utils.loading_saving import _excel_backend_available
 
 if _gis_enabled:
     from nesta_ds_utils.loading_saving.gis_interface import (
@@ -53,10 +54,13 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
         df_data.to_csv(buffer, **kwargs)
     elif fnmatch(path_to, "*.parquet"):
         df_data.to_parquet(buffer, **kwargs)
-    elif fnmatch(path_to, "*.xlsx"):
-        df_data.to_excel(buffer, **kwargs)
-    elif fnmatch(path_to, "*.xlsm"):
-        df_data.to_excel(buffer, **kwargs)
+    elif fnmatch(path_to, "*.xlsx") or fnmatch(path_to, "*.xlsm"):
+        if _excel_backend_available:
+            df_data.to_excel(buffer, **kwargs)
+        else:
+            raise ModuleNotFoundError(
+                "Please install 'io_extras' extra from nesta_ds_utils or 'openpyxl' to upload excel files."
+            )
     else:
         raise NotImplementedError(
             "Uploading dataframe currently supported only for 'csv', 'parquet', 'xlsx' and xlsm'."
@@ -258,10 +262,13 @@ def _fileobj_to_df(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFram
         return pd.read_csv(fileobj, **kwargs)
     elif fnmatch(path_from, "*.parquet"):
         return pd.read_parquet(fileobj, **kwargs)
-    elif fnmatch(path_from, "*.xlsx"):
-        return pd.read_excel(fileobj, **kwargs)
-    elif fnmatch(path_from, "*.xlsm"):
-        return pd.read_excel(fileobj, **kwargs)
+    elif fnmatch(path_from, "*.xlsx") or fnmatch(path_from, "*.xlsm"):
+        if _excel_backend_available:
+            return pd.read_excel(fileobj, **kwargs)
+        else:
+            raise ModuleNotFoundError(
+                "Please install 'io_extras' extra from nesta_ds_utils or 'openpyxl' to download excel files."
+            )
 
 
 def _fileobj_to_dict(fileobj: io.BytesIO, path_from: str, **kwargs) -> dict:
