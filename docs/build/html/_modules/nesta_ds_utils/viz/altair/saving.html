@@ -39,13 +39,11 @@
 <span class="sd">Module containing utils for styling and exporting figures using Altair.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">altair_saver</span> <span class="k">as</span> <span class="nn">alt_saver</span>
 <span class="kn">from</span> <span class="nn">altair.vegalite</span> <span class="kn">import</span> <span class="n">Chart</span>
 <span class="kn">import</span> <span class="nn">altair</span> <span class="k">as</span> <span class="nn">alt</span>
-<span class="kn">from</span> <span class="nn">selenium</span> <span class="kn">import</span> <span class="n">webdriver</span>
 <span class="kn">from</span> <span class="nn">webdriver_manager.chrome</span> <span class="kn">import</span> <span class="n">ChromeDriverManager</span>
 <span class="kn">from</span> <span class="nn">selenium.webdriver.chrome.webdriver</span> <span class="kn">import</span> <span class="n">WebDriver</span>
-<span class="kn">from</span> <span class="nn">selenium.webdriver.chrome.options</span> <span class="kn">import</span> <span class="n">Options</span>
+<span class="kn">from</span> <span class="nn">selenium.webdriver</span> <span class="kn">import</span> <span class="n">Chrome</span><span class="p">,</span> <span class="n">ChromeOptions</span><span class="p">,</span> <span class="n">ChromeService</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Type</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -53,16 +51,40 @@
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving</span> <span class="kn">import</span> <span class="n">file_ops</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 
 
 <span class="k">def</span> <span class="nf">_google_chrome_driver_setup</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">WebDriver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up the driver to save figures&quot;&quot;&quot;</span>
-    <span class="n">chrome_options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
-    <span class="n">chrome_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--headless&quot;</span><span class="p">)</span>
-    <span class="n">driver</span> <span class="o">=</span> <span class="n">webdriver</span><span class="o">.</span><span class="n">Chrome</span><span class="p">(</span>
-        <span class="n">ChromeDriverManager</span><span class="p">()</span><span class="o">.</span><span class="n">install</span><span class="p">(),</span> <span class="n">chrome_options</span><span class="o">=</span><span class="n">chrome_options</span>
-    <span class="p">)</span>
+    <span class="n">service</span> <span class="o">=</span> <span class="n">ChromeService</span><span class="p">(</span><span class="n">ChromeDriverManager</span><span class="p">()</span><span class="o">.</span><span class="n">install</span><span class="p">())</span>
+    <span class="n">chrome_options</span> <span class="o">=</span> <span class="n">ChromeOptions</span><span class="p">()</span>
+    <span class="n">chrome_options</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--headless=new&quot;</span><span class="p">)</span>
+    <span class="n">driver</span> <span class="o">=</span> <span class="n">Chrome</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">chrome_options</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">driver</span>
+
+
+<div class="viewcode-block" id="webdriver_context"><a class="viewcode-back" href="../../../../saving.html#nesta_ds_utils.viz.altair.saving.webdriver_context">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">webdriver_context</span><span class="p">(</span><span class="n">driver</span><span class="p">:</span> <span class="n">WebDriver</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context Manager for Selenium WebDrivers.</span>
+<span class="sd">    Optionally pass in user-instantiated Selenium Webdriver.</span>
+<span class="sd">    Defaults to setup and yield a ChromeWebDriver.</span>
+
+<span class="sd">    Typical usage:</span>
+
+<span class="sd">        with webdriver_context(webdriver or None) as driver:</span>
+<span class="sd">            # Do stuff with driver, driver.quit() is then called automatically</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        driver (WebDriver, optional): Webdriver to use. Defaults to &#39;webdriver.Chrome&#39;.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        WebDriver: The optional user-instantiated Selenium WebDriver or a Selenium ChromeWebDriver.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">driver</span> <span class="o">=</span> <span class="n">_google_chrome_driver_setup</span><span class="p">()</span> <span class="k">if</span> <span class="n">driver</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">driver</span>
+        <span class="k">yield</span> <span class="n">driver</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">driver</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span></div>
 
 
 <span class="k">def</span> <span class="nf">_save_png</span><span class="p">(</span>
@@ -77,8 +99,7 @@
 <span class="sd">        scale_factor (int): Saving scale factor.</span>
 <span class="sd">        driver (WebDriver): webdriver to use for saving.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">alt_saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
-        <span class="n">fig</span><span class="p">,</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span>
         <span class="n">method</span><span class="o">=</span><span class="s2">&quot;selenium&quot;</span><span class="p">,</span>
         <span class="n">webdriver</span><span class="o">=</span><span class="n">driver</span><span class="p">,</span>
@@ -110,8 +131,7 @@
 <span class="sd">        scale_factor (int): Saving scale factor.</span>
 <span class="sd">        driver (WebDriver): webdriver to use for saving.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">alt_saver</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
-        <span class="n">fig</span><span class="p">,</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.svg&quot;</span><span class="p">,</span>
         <span class="n">method</span><span class="o">=</span><span class="s2">&quot;selenium&quot;</span><span class="p">,</span>
         <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span>
@@ -141,26 +161,25 @@
 <span class="sd">        save_svg (bool, optional): Option to save figure as &#39;svg&#39;. Default to False.</span>
 <span class="sd">        scale_factor (int, optional): Saving scale factor. Default to 5.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">file_ops</span><span class="o">.</span><span class="n">_convert_str_to_pathlib_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">save_png</span><span class="p">,</span> <span class="n">save_html</span><span class="p">,</span> <span class="n">save_svg</span><span class="p">]):</span>
         <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
             <span class="s2">&quot;At least one format needs to be selected. Example: save(.., save_png=True).&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">save_png</span> <span class="ow">or</span> <span class="n">save_svg</span><span class="p">:</span>
-        <span class="n">driver</span> <span class="o">=</span> <span class="n">_google_chrome_driver_setup</span><span class="p">()</span> <span class="k">if</span> <span class="n">driver</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">driver</span>
-
+    <span class="n">path</span> <span class="o">=</span> <span class="n">file_ops</span><span class="o">.</span><span class="n">_convert_str_to_pathlib_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">file_ops</span><span class="o">.</span><span class="n">make_path_if_not_exist</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="c1"># Export figures</span>
-    <span class="k">if</span> <span class="n">save_png</span><span class="p">:</span>
-        <span class="n">_save_png</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save_png</span> <span class="ow">or</span> <span class="n">save_svg</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">webdriver_context</span><span class="p">(</span><span class="n">driver</span><span class="p">):</span>
+            <span class="c1"># Export figures</span>
+            <span class="k">if</span> <span class="n">save_png</span><span class="p">:</span>
+                <span class="n">_save_png</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">save_svg</span><span class="p">:</span>
+                <span class="n">_save_svg</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">save_html</span><span class="p">:</span>
-        <span class="n">_save_html</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">save_svg</span><span class="p">:</span>
-        <span class="n">_save_svg</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">,</span> <span class="n">driver</span><span class="p">)</span></div>
+        <span class="n">_save_html</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_find_averta</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
