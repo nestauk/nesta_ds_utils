@@ -2,13 +2,11 @@
 Module containing utils for styling and exporting figures using Altair.
 """
 
-import altair_saver as alt_saver
 from altair.vegalite import Chart
 import altair as alt
-from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver import Chrome, ChromeOptions, ChromeService
 import os
 from typing import Union, List, Type
 import warnings
@@ -16,16 +14,40 @@ from matplotlib import font_manager
 from pathlib import Path
 from nesta_ds_utils.loading_saving import file_ops
 import yaml
+from contextlib import contextmanager
 
 
 def _google_chrome_driver_setup() -> WebDriver:
     """Set up the driver to save figures"""
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(
-        ChromeDriverManager().install(), chrome_options=chrome_options
-    )
+    service = ChromeService(ChromeDriverManager().install())
+    chrome_options = ChromeOptions()
+    chrome_options.add_argument("--headless=new")
+    driver = Chrome(service=service, options=chrome_options)
     return driver
+
+
+@contextmanager
+def webdriver_context(driver: WebDriver = None):
+    """Context Manager for Selenium WebDrivers.
+    Optionally pass in user-instantiated Selenium Webdriver.
+    Defaults to setup and yield a ChromeWebDriver.
+
+    Typical usage:
+
+        with webdriver_context(webdriver or None) as driver:
+            # Do stuff with driver, driver.quit() is then called automatically
+
+    Args:
+        driver (WebDriver, optional): Webdriver to use. Defaults to 'webdriver.Chrome'.
+
+    Yields:
+        WebDriver: The optional user-instantiated Selenium WebDriver or a Selenium ChromeWebDriver.
+    """
+    try:
+        driver = _google_chrome_driver_setup() if driver is None else driver
+        yield driver
+    finally:
+        driver.quit()
 
 
 def _save_png(
@@ -40,8 +62,7 @@ def _save_png(
         scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
     """
-    alt_saver.save(
-        fig,
+    fig.save(
         f"{path}/{name}.png",
         method="selenium",
         webdriver=driver,
@@ -73,8 +94,7 @@ def _save_svg(
         scale_factor (int): Saving scale factor.
         driver (WebDriver): webdriver to use for saving.
     """
-    alt_saver.save(
-        fig,
+    fig.save(
         f"{path}/{name}.svg",
         method="selenium",
         scale_factor=scale_factor,
@@ -104,26 +124,25 @@ def save(
         save_svg (bool, optional): Option to save figure as 'svg'. Default to False.
         scale_factor (int, optional): Saving scale factor. Default to 5.
     """
-    path = file_ops._convert_str_to_pathlib_path(path)
-
     if not any([save_png, save_html, save_svg]):
         raise Exception(
             "At least one format needs to be selected. Example: save(.., save_png=True)."
         )
 
-    if save_png or save_svg:
-        driver = _google_chrome_driver_setup() if driver is None else driver
-
+    path = file_ops._convert_str_to_pathlib_path(path)
     file_ops.make_path_if_not_exist(path)
-    # Export figures
-    if save_png:
-        _save_png(fig, path, name, scale_factor, driver)
+
+    if save_png or save_svg:
+        with webdriver_context(driver):
+            # Export figures
+            if save_png:
+                _save_png(fig, path, name, scale_factor, driver)
+
+            if save_svg:
+                _save_svg(fig, path, name, scale_factor, driver)
 
     if save_html:
         _save_html(fig, path, name, scale_factor)
-
-    if save_svg:
-        _save_svg(fig, path, name, scale_factor, driver)
 
 
 def _find_averta() -> str:
