@@ -11,10 +11,9 @@ import pickle
 import warnings
 from nesta_ds_utils.loading_saving import file_ops
 
-from nesta_ds_utils.loading_saving.gis_interface import _gis_enabled
-from nesta_ds_utils.loading_saving import _excel_backend_available
+from nesta_ds_utils import feature_enabled
 
-if _gis_enabled:
+if feature_enabled["gis"]:
     from nesta_ds_utils.loading_saving.gis_interface import (
         _gdf_to_fileobj,
         _fileobj_to_gdf,
@@ -55,7 +54,7 @@ def _df_to_fileobj(df_data: pd.DataFrame, path_to: str, **kwargs) -> io.BytesIO:
     elif fnmatch(path_to, "*.parquet"):
         df_data.to_parquet(buffer, **kwargs)
     elif fnmatch(path_to, "*.xlsx") or fnmatch(path_to, "*.xlsm"):
-        if _excel_backend_available:
+        if feature_enabled["excel"]:
             df_data.to_excel(buffer, **kwargs)
         else:
             raise ModuleNotFoundError(
@@ -221,7 +220,7 @@ def upload_obj(
     """
     if isinstance(obj, pd.DataFrame):
         if type(obj).__name__ == "GeoDataFrame":
-            if _gis_enabled:
+            if feature_enabled["gis"]:
                 obj = _gdf_to_fileobj(obj, path_to, **kwargs_writing)
             else:
                 raise ModuleNotFoundError(
@@ -263,7 +262,7 @@ def _fileobj_to_df(fileobj: io.BytesIO, path_from: str, **kwargs) -> pd.DataFram
     elif fnmatch(path_from, "*.parquet"):
         return pd.read_parquet(fileobj, **kwargs)
     elif fnmatch(path_from, "*.xlsx") or fnmatch(path_from, "*.xlsm"):
-        if _excel_backend_available:
+        if feature_enabled["excel"]:
             return pd.read_excel(fileobj, **kwargs)
         else:
             raise ModuleNotFoundError(
@@ -382,7 +381,7 @@ def download_obj(
             )
     elif download_as == "geodf":
         if path_from.endswith(tuple([".geojson"])):
-            if _gis_enabled:
+            if feature_enabled["gis"]:
                 return _fileobj_to_gdf(fileobj, path_from, **kwargs_reading)
             else:
                 raise ModuleNotFoundError(
