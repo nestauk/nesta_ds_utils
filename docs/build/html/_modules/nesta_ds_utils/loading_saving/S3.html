@@ -48,9 +48,9 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving</span> <span class="kn">import</span> <span class="n">file_ops</span>
 
-<span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving.gis_interface</span> <span class="kn">import</span> <span class="n">_gis_enabled</span>
+<span class="kn">from</span> <span class="nn">nesta_ds_utils</span> <span class="kn">import</span> <span class="n">feature_enabled</span>
 
-<span class="k">if</span> <span class="n">_gis_enabled</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">feature_enabled</span><span class="p">[</span><span class="s2">&quot;gis&quot;</span><span class="p">]:</span>
     <span class="kn">from</span> <span class="nn">nesta_ds_utils.loading_saving.gis_interface</span> <span class="kn">import</span> <span class="p">(</span>
         <span class="n">_gdf_to_fileobj</span><span class="p">,</span>
         <span class="n">_fileobj_to_gdf</span><span class="p">,</span>
@@ -90,10 +90,13 @@
         <span class="n">df_data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
         <span class="n">df_data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.xlsx&quot;</span><span class="p">):</span>
-        <span class="n">df_data</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.xlsm&quot;</span><span class="p">):</span>
-        <span class="n">df_data</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.xlsx&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_to</span><span class="p">,</span> <span class="s2">&quot;*.xlsm&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">feature_enabled</span><span class="p">[</span><span class="s2">&quot;excel&quot;</span><span class="p">]:</span>
+            <span class="n">df_data</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Please install &#39;io_extras&#39; extra from nesta_ds_utils or &#39;openpyxl&#39; to upload excel files.&quot;</span>
+            <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;Uploading dataframe currently supported only for &#39;csv&#39;, &#39;parquet&#39;, &#39;xlsx&#39; and xlsm&#39;.&quot;</span>
@@ -254,7 +257,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_gis_enabled</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature_enabled</span><span class="p">[</span><span class="s2">&quot;gis&quot;</span><span class="p">]:</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">_gdf_to_fileobj</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">path_to</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_writing</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
@@ -295,10 +298,13 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.parquet&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.xlsx&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.xlsm&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.xlsx&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">path_from</span><span class="p">,</span> <span class="s2">&quot;*.xlsm&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">feature_enabled</span><span class="p">[</span><span class="s2">&quot;excel&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+                <span class="s2">&quot;Please install &#39;io_extras&#39; extra from nesta_ds_utils or &#39;openpyxl&#39; to download excel files.&quot;</span>
+            <span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_fileobj_to_dict</span><span class="p">(</span><span class="n">fileobj</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">,</span> <span class="n">path_from</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -412,7 +418,7 @@
             <span class="p">)</span>
     <span class="k">elif</span> <span class="n">download_as</span> <span class="o">==</span> <span class="s2">&quot;geodf&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">path_from</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">([</span><span class="s2">&quot;.geojson&quot;</span><span class="p">])):</span>
-            <span class="k">if</span> <span class="n">_gis_enabled</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">feature_enabled</span><span class="p">[</span><span class="s2">&quot;gis&quot;</span><span class="p">]:</span>
                 <span class="k">return</span> <span class="n">_fileobj_to_gdf</span><span class="p">(</span><span class="n">fileobj</span><span class="p">,</span> <span class="n">path_from</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs_reading</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>

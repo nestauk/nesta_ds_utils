@@ -88,13 +88,17 @@
 
 
 <span class="k">def</span> <span class="nf">_save_png</span><span class="p">(</span>
-    <span class="n">fig</span><span class="p">:</span> <span class="n">Chart</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">WebDriver</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">Chart</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">driver</span><span class="p">:</span> <span class="n">WebDriver</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Save altair chart as a  raster png file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        fig: Altair chart.</span>
-<span class="sd">        path (os.PathLike): Path where to save the figure.</span>
+<span class="sd">        path (Union[os.PathLike, Path, str]): Path where to save the figure.</span>
 <span class="sd">        name (str): Name of figure.</span>
 <span class="sd">        scale_factor (int): Saving scale factor.</span>
 <span class="sd">        driver (WebDriver): webdriver to use for saving.</span>
@@ -107,12 +111,14 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_save_html</span><span class="p">(</span><span class="n">fig</span><span class="p">:</span> <span class="n">Chart</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_save_html</span><span class="p">(</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">Chart</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Save altair chart as a html file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        fig: Altair chart.</span>
-<span class="sd">        path (os.PathLike): Path where to save the figure.</span>
+<span class="sd">        path (Union[os.PathLike, Path, str]): Path where to save the figure.</span>
 <span class="sd">        name (str): Name of figure.</span>
 <span class="sd">        scale_factor (int): Saving scale factor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -120,13 +126,17 @@
 
 
 <span class="k">def</span> <span class="nf">_save_svg</span><span class="p">(</span>
-    <span class="n">fig</span><span class="p">:</span> <span class="n">Chart</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">driver</span><span class="p">:</span> <span class="n">WebDriver</span>
+    <span class="n">fig</span><span class="p">:</span> <span class="n">Chart</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">driver</span><span class="p">:</span> <span class="n">WebDriver</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Save altair chart as vector svg file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        fig: Altair chart.</span>
-<span class="sd">        path (os.PathLike): Path where to save the figure.</span>
+<span class="sd">        path (Union[os.PathLike, Path, str]): Path where to save the figure.</span>
 <span class="sd">        name (str): Name of figure.</span>
 <span class="sd">        scale_factor (int): Saving scale factor.</span>
 <span class="sd">        driver (WebDriver): webdriver to use for saving.</span>
