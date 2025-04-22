@@ -35,18 +35,18 @@
           <div class="body" role="main">
             
   <h1>Source code for nesta_ds_utils.networks.build</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">combinations</span>
-<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
-<span class="kn">import</span> <span class="nn">scipy</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">combinations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
 
-<div class="viewcode-block" id="build_coocc"><a class="viewcode-back" href="../../../build.html#nesta_ds_utils.networks.build.build_coocc">[docs]</a><span class="k">def</span> <span class="nf">build_coocc</span><span class="p">(</span>
+<div class="viewcode-block" id="build_coocc"><a class="viewcode-back" href="../../../build.html#nesta_ds_utils.networks.build.build_coocc">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">build_coocc</span><span class="p">(</span>
     <span class="n">sequences</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">list</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]],</span>
     <span class="n">graph_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;networkx&quot;</span><span class="p">,</span>
     <span class="n">directed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -127,7 +127,7 @@
         <span class="k">return</span> <span class="n">network</span></div>
 
 
-<span class="k">def</span> <span class="nf">_cooccurrence_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cooccurrence_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;counts the pairs of cooccuring tokens in a sequence</span>
 
 <span class="sd">    Args:</span>
@@ -140,7 +140,7 @@
     <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">combos</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">_node_frequency_counts</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_node_frequency_counts</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;counts frequency of all tokens in corpus</span>
 
 <span class="sd">    Args:</span>
@@ -152,7 +152,7 @@
     <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">all_tokens</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_jaccard_similarity</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_jaccard_similarity</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the jaccard similarity between nodes in the network</span>
 
 <span class="sd">    Args:</span>
@@ -171,7 +171,7 @@
     <span class="k">return</span> <span class="n">jaccard_sims</span>
 
 
-<span class="k">def</span> <span class="nf">_association_strength</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_association_strength</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the association strength between nodes in the network</span>
 
 <span class="sd">    Args:</span>
@@ -190,7 +190,7 @@
     <span class="k">return</span> <span class="n">association_strengths</span>
 
 
-<span class="k">def</span> <span class="nf">_cosine_sim</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_cosine_sim</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the cosine similarity between nodes in the network</span>
 
 <span class="sd">    Args:</span>
@@ -209,7 +209,7 @@
     <span class="k">return</span> <span class="n">cosine_similarities</span>
 
 
-<span class="k">def</span> <span class="nf">_inclusion_index</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_inclusion_index</span><span class="p">(</span><span class="n">edge_weights</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">all_tokens</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;calculate the inclusion index between nodes in the network</span>
 
 <span class="sd">    Args:</span>
