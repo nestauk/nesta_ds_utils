@@ -334,6 +334,20 @@ def _fileobj_to_np_array(fileobj: io.BytesIO, path_from: str, **kwargs) -> np.nd
     return np_array_data
 
 
+def load_with_encoding(bucket_name: str, file_name: str):
+    """
+    Load data from S3 location to allow for encoding.
+    Args:
+        bucket_name: The S3 bucket name
+        file_name: S3 key to load
+    Returns:
+        Loaded data from S3 location
+    """
+    s3 = boto3.client("s3")
+    obj = s3.get_object(Bucket=bucket_name, Key=file_name)
+    return io.BytesIO(obj["Body"].read())
+
+
 def download_obj(
     bucket: str,
     path_from: str,
